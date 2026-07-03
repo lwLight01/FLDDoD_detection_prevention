@@ -55,7 +55,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ddos_user}:${POSTGRES_PASSWORD:-change_this_password}@db:5432/${POSTGRES_DB:-ddos_db}
     ports:
-      - "8000:8000"
+      - "9000:8000"
     networks:
       - ddos_net
     depends_on:

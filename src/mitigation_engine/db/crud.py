@@ -27,14 +27,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from mitigation_engine.db.models import (
     AttackAlert,
     FLClient,
-    FLClientUpdate,
     FLRound,
     MitigationAction,
     ModelVersion,
     Role,
     User,
 )
-
 
 # ---------------------------------------------------------------------------
 # Roles
@@ -102,9 +100,7 @@ async def get_all_fl_clients(db: AsyncSession) -> list[FLClient]:
     return list(result.scalars().all())
 
 
-async def create_fl_client(
-    db: AsyncSession, node_name: str, ip_address: str
-) -> FLClient:
+async def create_fl_client(db: AsyncSession, node_name: str, ip_address: str) -> FLClient:
     """Register a new FL edge client."""
     client = FLClient(node_name=node_name, ip_address=ip_address)
     db.add(client)
@@ -162,9 +158,7 @@ async def close_fl_round(
 
 async def get_latest_fl_rounds(db: AsyncSession, limit: int = 20) -> list[FLRound]:
     """Return the N most recent FL rounds for the dashboard."""
-    result = await db.execute(
-        select(FLRound).order_by(FLRound.id.desc()).limit(limit)
-    )
+    result = await db.execute(select(FLRound).order_by(FLRound.id.desc()).limit(limit))
     return list(result.scalars().all())
 
 
@@ -196,15 +190,10 @@ async def create_attack_alert(
     return alert
 
 
-async def get_recent_alerts(
-    db: AsyncSession, limit: int = 50, skip: int = 0
-) -> list[AttackAlert]:
+async def get_recent_alerts(db: AsyncSession, limit: int = 50, skip: int = 0) -> list[AttackAlert]:
     """Fetch recent attack alerts ordered by detection time (newest first)."""
     result = await db.execute(
-        select(AttackAlert)
-        .order_by(AttackAlert.detected_at.desc())
-        .offset(skip)
-        .limit(limit)
+        select(AttackAlert).order_by(AttackAlert.detected_at.desc()).offset(skip).limit(limit)
     )
     return list(result.scalars().all())
 
@@ -237,14 +226,10 @@ async def create_mitigation_action(
     return action
 
 
-async def update_mitigation_status(
-    db: AsyncSession, action_id: uuid.UUID, status: str
-) -> None:
+async def update_mitigation_status(db: AsyncSession, action_id: uuid.UUID, status: str) -> None:
     """Update the lifecycle status of a mitigation action."""
     await db.execute(
-        update(MitigationAction)
-        .where(MitigationAction.id == action_id)
-        .values(status=status)
+        update(MitigationAction).where(MitigationAction.id == action_id).values(status=status)
     )
 
 
@@ -290,7 +275,5 @@ async def activate_model_version(db: AsyncSession, version_tag: str) -> None:
     """
     await db.execute(update(ModelVersion).values(is_active=False))
     await db.execute(
-        update(ModelVersion)
-        .where(ModelVersion.version_tag == version_tag)
-        .values(is_active=True)
+        update(ModelVersion).where(ModelVersion.version_tag == version_tag).values(is_active=True)
     )

@@ -16,5 +16,6 @@ SHAP-driven precision:
 Implementation deferred to Milestone 26.
 Ref: docs/Mitigation.md § 3, docs/DevelopmentRoadmap.md — Milestone 26
 """
+
 # TODO (Milestone 26): Implement RuleGenerator class
 # TODO (Milestone 26): Implement generate_rule(risk_score, attack_context) -> MitigationRule

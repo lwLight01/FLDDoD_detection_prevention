@@ -9,21 +9,18 @@ Acceptance Criteria (Milestone 1):
   - Field constraints (probability bounds, non-empty SHAP) are enforced.
 """
 
-import pytest
 from datetime import datetime
 from uuid import uuid4
 
+import pytest
 from pydantic import ValidationError
 
+from shared.enums import MitigationLevel
 from shared.schemas import (
     AlertCreate,
-    AlertResponse,
-    MitigationActionCreate,
-    MitigationActionResponse,
     HealthResponse,
+    MitigationActionCreate,
 )
-from shared.enums import MitigationLevel, MitigationStatus, SeverityLevel
-
 
 CLIENT_UUID = uuid4()
 
@@ -85,7 +82,7 @@ class TestMitigationActionCreate:
             MitigationActionCreate(
                 target_ip="192.168.1.5",
                 action_type=MitigationLevel.RATE_LIMIT,
-                duration_seconds=30,   # minimum is 60
+                duration_seconds=30,  # minimum is 60
             )
 
     def test_duration_above_maximum_rejected(self):

@@ -27,8 +27,6 @@ from sqlalchemy import (
     Float,
     Integer,
     String,
-    Text,
-    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import INET, JSONB, TIMESTAMP, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -37,8 +35,6 @@ from sqlalchemy.sql import func
 
 class Base(DeclarativeBase):
     """Shared declarative base for all ORM models."""
-
-    pass
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +125,9 @@ class FLClient(Base):
     current_trust_score: Mapped[float] = mapped_column(Float, default=1.0, server_default="1.0")
     is_banned: Mapped[bool] = mapped_column(Boolean, default=False, server_default="FALSE")
 
-    updates: Mapped[list["FLClientUpdate"]] = relationship("FLClientUpdate", back_populates="client")
+    updates: Mapped[list["FLClientUpdate"]] = relationship(
+        "FLClientUpdate", back_populates="client"
+    )
     alerts: Mapped[list["AttackAlert"]] = relationship("AttackAlert", back_populates="client")
 
     def __repr__(self) -> str:
@@ -248,7 +246,9 @@ class AttackAlert(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<AttackAlert severity={self.severity_level} prob={self.prediction_probability:.3f}>"
+        return (
+            f"<AttackAlert severity={self.severity_level} prob={self.prediction_probability:.3f}>"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -286,4 +286,7 @@ class MitigationAction(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<MitigationAction type={self.action_type} target={self.target_ip} status={self.status}>"
+        return (
+            f"<MitigationAction type={self.action_type} "
+            f"target={self.target_ip} status={self.status}>"
+        )

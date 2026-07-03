@@ -26,8 +26,9 @@ Ref: docs/DevelopmentRoadmap.md — Milestone 4
 """
 
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Load .env if present so tests can run standalone
 _env_file = Path(__file__).parents[2] / ".env"
@@ -49,7 +50,7 @@ DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
 @pytest.fixture(scope="module")
 def db_engine():
     """Create a synchronous SQLAlchemy engine for the live DB."""
-    sqlalchemy = pytest.importorskip("sqlalchemy", reason="sqlalchemy required")
+    pytest.importorskip("sqlalchemy", reason="sqlalchemy required")
     from sqlalchemy import create_engine, text
 
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
@@ -68,7 +69,8 @@ def db_engine():
 
 @pytest.fixture(scope="module")
 def db_conn(db_engine):
-    from sqlalchemy import text
+    pass
+
     with db_engine.connect() as conn:
         yield conn
 
@@ -77,28 +79,34 @@ def db_conn(db_engine):
 # Migration State
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestAlembicMigrationApplied:
     """Verify Alembic has been applied to the database."""
 
     def test_alembic_version_table_exists(self, db_conn):
-        from sqlalchemy import text, inspect
+        from sqlalchemy import inspect
+
         inspector = inspect(db_conn)
         tables = inspector.get_table_names()
-        assert "alembic_version" in tables, \
-            "alembic_version table must exist — run: alembic upgrade head"
+        assert (
+            "alembic_version" in tables
+        ), "alembic_version table must exist — run: alembic upgrade head"
 
     def test_migration_version_is_set(self, db_conn):
         from sqlalchemy import text
+
         result = db_conn.execute(text("SELECT version_num FROM alembic_version")).fetchall()
         assert len(result) == 1, "Exactly one migration version must be recorded"
-        assert result[0][0] == "001_initial_schema", \
-            f"Expected migration '001_initial_schema', got '{result[0][0]}'"
+        assert (
+            result[0][0] == "001_initial_schema"
+        ), f"Expected migration '001_initial_schema', got '{result[0][0]}'"
 
 
 # ---------------------------------------------------------------------------
 # Table Existence
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestAllTablesExist:
@@ -119,15 +127,16 @@ class TestAllTablesExist:
     @pytest.mark.parametrize("table_name", EXPECTED_TABLES)
     def test_table_exists(self, db_conn, table_name):
         from sqlalchemy import inspect
+
         inspector = inspect(db_conn)
         tables = inspector.get_table_names(schema="public")
-        assert table_name in tables, \
-            f"Table '{table_name}' must exist — run: alembic upgrade head"
+        assert table_name in tables, f"Table '{table_name}' must exist — run: alembic upgrade head"
 
 
 # ---------------------------------------------------------------------------
 # TimescaleDB HyperTables
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestTimescaleHypertables:
@@ -135,6 +144,7 @@ class TestTimescaleHypertables:
 
     def _get_hypertables(self, db_conn) -> list[str]:
         from sqlalchemy import text
+
         result = db_conn.execute(
             text("SELECT hypertable_name FROM timescaledb_information.hypertables")
         ).fetchall()
@@ -142,23 +152,23 @@ class TestTimescaleHypertables:
 
     def test_traffic_history_is_hypertable(self, db_conn):
         hypertables = self._get_hypertables(db_conn)
-        assert "traffic_history" in hypertables, \
-            "traffic_history must be a TimescaleDB hypertable"
+        assert "traffic_history" in hypertables, "traffic_history must be a TimescaleDB hypertable"
 
     def test_attack_alerts_is_hypertable(self, db_conn):
         hypertables = self._get_hypertables(db_conn)
-        assert "attack_alerts" in hypertables, \
-            "attack_alerts must be a TimescaleDB hypertable"
+        assert "attack_alerts" in hypertables, "attack_alerts must be a TimescaleDB hypertable"
 
     def test_exactly_two_hypertables(self, db_conn):
         hypertables = self._get_hypertables(db_conn)
-        assert len(hypertables) == 2, \
-            f"Expected exactly 2 hypertables, got {len(hypertables)}: {hypertables}"
+        assert (
+            len(hypertables) == 2
+        ), f"Expected exactly 2 hypertables, got {len(hypertables)}: {hypertables}"
 
 
 # ---------------------------------------------------------------------------
 # Column Structure
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestTableColumns:
@@ -166,6 +176,7 @@ class TestTableColumns:
 
     def _col_names(self, db_conn, table: str) -> list[str]:
         from sqlalchemy import inspect
+
         inspector = inspect(db_conn)
         return [c["name"] for c in inspector.get_columns(table)]
 
@@ -176,7 +187,14 @@ class TestTableColumns:
 
     def test_fl_rounds_has_required_columns(self, db_conn):
         cols = self._col_names(db_conn, "fl_rounds")
-        for expected in ["id", "start_time", "end_time", "global_accuracy", "global_loss", "model_version_tag"]:
+        for expected in [
+            "id",
+            "start_time",
+            "end_time",
+            "global_accuracy",
+            "global_loss",
+            "model_version_tag",
+        ]:
             assert expected in cols, f"fl_rounds table missing column: {expected}"
 
     def test_traffic_history_has_required_columns(self, db_conn):
@@ -190,13 +208,15 @@ class TestTableColumns:
 
     def test_mitigation_actions_has_sdn_payload_column(self, db_conn):
         cols = self._col_names(db_conn, "mitigation_actions")
-        assert "sdn_rule_payload" in cols, \
-            "mitigation_actions must have a sdn_rule_payload JSONB column"
+        assert (
+            "sdn_rule_payload" in cols
+        ), "mitigation_actions must have a sdn_rule_payload JSONB column"
 
 
 # ---------------------------------------------------------------------------
 # Indexes
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestDatabaseIndexes:
@@ -204,6 +224,7 @@ class TestDatabaseIndexes:
 
     def _get_index_names(self, db_conn, table: str) -> list[str]:
         from sqlalchemy import text
+
         result = db_conn.execute(
             text(
                 "SELECT indexname FROM pg_indexes "
@@ -215,46 +236,52 @@ class TestDatabaseIndexes:
 
     def test_users_username_index_exists(self, db_conn):
         indexes = self._get_index_names(db_conn, "users")
-        assert any("username" in idx for idx in indexes), \
-            "users table must have an index on username"
+        assert any(
+            "username" in idx for idx in indexes
+        ), "users table must have an index on username"
 
     def test_users_email_index_exists(self, db_conn):
         indexes = self._get_index_names(db_conn, "users")
-        assert any("email" in idx for idx in indexes), \
-            "users table must have an index on email"
+        assert any("email" in idx for idx in indexes), "users table must have an index on email"
 
     def test_fl_clients_node_name_index_exists(self, db_conn):
         indexes = self._get_index_names(db_conn, "fl_clients")
-        assert any("node_name" in idx for idx in indexes), \
-            "fl_clients table must have an index on node_name"
+        assert any(
+            "node_name" in idx for idx in indexes
+        ), "fl_clients table must have an index on node_name"
 
     def test_attack_alerts_shap_gin_index_exists(self, db_conn):
         indexes = self._get_index_names(db_conn, "attack_alerts")
-        assert any("shap" in idx or "gin" in idx for idx in indexes), \
-            "attack_alerts must have a GIN index on shap_values"
+        assert any(
+            "shap" in idx or "gin" in idx for idx in indexes
+        ), "attack_alerts must have a GIN index on shap_values"
 
     def test_mitigation_actions_target_ip_index_exists(self, db_conn):
         indexes = self._get_index_names(db_conn, "mitigation_actions")
-        assert any("target_ip" in idx for idx in indexes), \
-            "mitigation_actions must have an index on target_ip"
+        assert any(
+            "target_ip" in idx for idx in indexes
+        ), "mitigation_actions must have an index on target_ip"
 
     def test_models_partial_active_index_exists(self, db_conn):
         indexes = self._get_index_names(db_conn, "models")
-        assert any("active" in idx for idx in indexes), \
-            "models table must have a partial unique index for is_active"
+        assert any(
+            "active" in idx for idx in indexes
+        ), "models table must have a partial unique index for is_active"
 
 
 # ---------------------------------------------------------------------------
 # Basic Write/Read (Smoke Test)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestBasicCRUD:
     """Verify tables accept and return data correctly."""
 
     def test_can_insert_and_read_role(self, db_conn):
-        from sqlalchemy import text
         import uuid
+
+        from sqlalchemy import text
 
         role_id = str(uuid.uuid4())
         role_name = f"TEST_ROLE_{uuid.uuid4().hex[:6].upper()}"
@@ -279,16 +306,19 @@ class TestBasicCRUD:
 
     def test_traffic_history_autoincrement_id(self, db_conn):
         """Verify BIGSERIAL auto-increment works on the hypertable."""
-        from sqlalchemy import text
         from datetime import datetime, timezone
+
+        from sqlalchemy import text
 
         ts = datetime.now(timezone.utc)
         db_conn.execute(
-            text("""
+            text(
+                """
                 INSERT INTO traffic_history
                     (timestamp, src_ip, dst_ip, src_port, dst_port, protocol)
                 VALUES (:ts, '10.0.0.1', '10.0.0.2', 12345, 80, 'TCP')
-            """),
+            """
+            ),
             {"ts": ts},
         )
         db_conn.commit()
@@ -302,7 +332,5 @@ class TestBasicCRUD:
         assert result[0] > 0, "BIGSERIAL id must be auto-assigned and > 0"
 
         # Cleanup
-        db_conn.execute(
-            text("DELETE FROM traffic_history WHERE timestamp = :ts"), {"ts": ts}
-        )
+        db_conn.execute(text("DELETE FROM traffic_history WHERE timestamp = :ts"), {"ts": ts})
         db_conn.commit()

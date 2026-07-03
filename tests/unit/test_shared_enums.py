@@ -9,7 +9,6 @@ Acceptance Criteria (Milestone 1):
   - Enums are properly typed (str + Enum) for JSON serialisation.
 """
 
-import pytest
 from shared.enums import (
     AttackType,
     MitigationLevel,
@@ -21,7 +20,14 @@ from shared.enums import (
 
 class TestAttackType:
     def test_all_members_exist(self):
-        expected = {"BENIGN", "UDP_FLOOD", "SYN_FLOOD", "HTTP_FLOOD", "DNS_AMPLIFICATION", "UNKNOWN"}
+        expected = {
+            "BENIGN",
+            "UDP_FLOOD",
+            "SYN_FLOOD",
+            "HTTP_FLOOD",
+            "DNS_AMPLIFICATION",
+            "UNKNOWN",
+        }
         actual = {m.value for m in AttackType}
         assert expected == actual
 

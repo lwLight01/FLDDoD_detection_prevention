@@ -20,16 +20,33 @@ Ref: docs/API.md, docs/Deployment.md
      docs/DevelopmentRoadmap.md — Milestone 23
 """
 
-# TODO (Milestone 23): Implement create_app() factory with CORS, routers, lifespan
-# TODO (Milestone 23): Add /api/v1/monitoring/health endpoint
-# TODO (Milestone 29): Mount WebSocket router
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+# TODO (Milestone 23): Add CORS, routers, and lifespan
+
+app = FastAPI(
+    title="DDoS Mitigation Engine API",
+    description="Adaptive FL DDoS System - Centralized API Gateway",
+    version="1.0.0",
+)
+
+
+class HealthResponse(BaseModel):
+    status: str
+    message: str
+
+
+@app.get("/api/v1/monitoring/health", response_model=HealthResponse, tags=["Monitoring"])
+async def health_check():
+    """Health check endpoint for Docker Compose."""
+    return HealthResponse(status="ok", message="Mitigation Engine API is running.")
 
 
 def main() -> None:
-    """Launch Uvicorn ASGI server. Implemented in Milestone 23."""
-    raise NotImplementedError(
-        "mitigation_engine.main is scaffolded. Implement in Milestone 23."
-    )
+    import uvicorn
+
+    uvicorn.run("mitigation_engine.main:app", host="0.0.0.0", port=8000, reload=False)
 
 
 if __name__ == "__main__":
