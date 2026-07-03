@@ -14,6 +14,7 @@ Ref: docs/Architecture.md § Logging
 """
 
 import sys
+
 from loguru import logger
 
 
@@ -53,7 +54,7 @@ def configure_logging(log_level: str = "INFO", service_name: str = "ddos-system"
         rotation="100 MB",
         retention="30 days",
         compression="gz",
-        serialize=True,   # JSON format
+        serialize=True,  # JSON format
         enqueue=True,
     )
 

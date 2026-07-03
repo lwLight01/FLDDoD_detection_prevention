@@ -37,9 +37,9 @@ class MitigationEngineConfig(BaseSettings):
     risk_score_weight_decay: float = 0.1
 
     # --- Risk Score Stage Thresholds ---
-    risk_stage1_threshold: float = 50.0   # RATE_LIMIT
-    risk_stage2_threshold: float = 70.0   # ISOLATE
-    risk_stage3_threshold: float = 90.0   # QUARANTINE
+    risk_stage1_threshold: float = 50.0  # RATE_LIMIT
+    risk_stage2_threshold: float = 70.0  # ISOLATE
+    risk_stage3_threshold: float = 90.0  # QUARANTINE
 
     # --- Default TTL for rules (seconds) ---
     default_mitigation_ttl_seconds: int = 3600

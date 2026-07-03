@@ -48,10 +48,10 @@ def _get_engine():
 
         _engine = create_async_engine(
             url,
-            echo=False,           # Set True for SQL debug logging
+            echo=False,  # Set True for SQL debug logging
             pool_size=10,
             max_overflow=20,
-            pool_pre_ping=True,   # Verify connections before use (handles DB restarts)
+            pool_pre_ping=True,  # Verify connections before use (handles DB restarts)
         )
     return _engine
 

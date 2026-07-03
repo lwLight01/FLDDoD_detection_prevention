@@ -9,13 +9,11 @@ Acceptance Criteria (Milestone 1):
   - Settings correctly read from environment overrides.
 """
 
-import os
-import pytest
-
 
 class TestFLServerConfig:
     def test_default_values_match_spec(self):
         from fl_server.config import FLServerConfig
+
         cfg = FLServerConfig()
         # Ref: docs/FederatedLearning.md § 6
         assert cfg.fl_num_rounds == 100
@@ -27,6 +25,7 @@ class TestFLServerConfig:
     def test_env_override(self, monkeypatch):
         monkeypatch.setenv("FL_NUM_ROUNDS", "50")
         from fl_server.config import FLServerConfig
+
         cfg = FLServerConfig()
         assert cfg.fl_num_rounds == 50
 
@@ -34,12 +33,16 @@ class TestFLServerConfig:
 class TestMitigationEngineConfig:
     def test_default_risk_weights_sum_to_one(self):
         from mitigation_engine.config import MitigationEngineConfig
+
         cfg = MitigationEngineConfig()
-        total = cfg.risk_score_weight_prob + cfg.risk_score_weight_freq + cfg.risk_score_weight_decay
+        total = (
+            cfg.risk_score_weight_prob + cfg.risk_score_weight_freq + cfg.risk_score_weight_decay
+        )
         assert abs(total - 1.0) < 1e-9, f"Risk weights must sum to 1.0, got {total}"
 
     def test_default_threshold_values(self):
         from mitigation_engine.config import MitigationEngineConfig
+
         cfg = MitigationEngineConfig()
         # Ref: docs/Mitigation.md § 3
         assert cfg.risk_stage1_threshold == 50.0

@@ -9,7 +9,6 @@ Acceptance Criteria (Milestone 1):
   - All Python packages have __init__.py.
 """
 
-import os
 from pathlib import Path
 
 import pytest
@@ -150,16 +149,19 @@ def test_required_file_exists(filepath: str):
     assert path.is_file(), f"Missing required file: {filepath}"
 
 
-@pytest.mark.parametrize("pkg", [
-    "src/shared",
-    "src/fl_server",
-    "src/fl_client",
-    "src/mitigation_engine",
-    "src/mitigation_engine/api",
-    "src/mitigation_engine/services",
-    "src/mitigation_engine/db",
-    "src/sdn_controller",
-])
+@pytest.mark.parametrize(
+    "pkg",
+    [
+        "src/shared",
+        "src/fl_server",
+        "src/fl_client",
+        "src/mitigation_engine",
+        "src/mitigation_engine/api",
+        "src/mitigation_engine/services",
+        "src/mitigation_engine/db",
+        "src/sdn_controller",
+    ],
+)
 def test_python_package_has_init(pkg: str):
     init = ROOT / pkg / "__init__.py"
     assert init.is_file(), f"Python package {pkg} is missing __init__.py"

@@ -14,5 +14,6 @@ SHAP Analysis:
 Implementation deferred to Milestone 25.
 Ref: docs/Mitigation.md § 2, docs/DevelopmentRoadmap.md — Milestone 25
 """
+
 # TODO (Milestone 25): Implement RiskScorer class
 # TODO (Milestone 25): Implement analyze_shap(shap_values) -> AttackContext

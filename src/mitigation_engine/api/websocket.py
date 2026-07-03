@@ -15,4 +15,5 @@ Broadcasts (ref: docs/API.md § 5.2):
 Implementation deferred to Milestone 29.
 Ref: docs/API.md § 5.2, docs/DevelopmentRoadmap.md — Milestone 29
 """
+
 # TODO (Milestone 29): Implement ConnectionManager and WebSocket router
