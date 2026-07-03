@@ -1,0 +1,2 @@
+# This directory holds Non-IID data partitions allocated to different FL clients.
+# Files in data/ are gitignored — generate by running scripts/create_fl_splits.py.

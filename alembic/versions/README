@@ -1,0 +1,2 @@
+# Alembic versions directory
+# Migration scripts are generated here with: alembic revision --autogenerate -m "..."
