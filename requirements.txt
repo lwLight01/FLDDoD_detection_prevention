@@ -1,0 +1,55 @@
+# ==============================================================================
+# Global Python Dependencies Reference
+# For service-specific dependencies, see src/<service>/requirements.txt
+# ==============================================================================
+
+# --- Federated Learning ---
+flwr>=1.7.0
+
+# --- Machine Learning ---
+torch>=2.12.1
+pytorch-tabular>=1.1.0
+scikit-learn>=1.4.0
+xgboost>=2.0.3
+shap>=0.44.0
+opacus>=1.4.0
+
+# --- Data Processing ---
+pandas>=2.2.0
+numpy>=1.26.4
+scipy>=1.12.0
+
+# --- Backend (API) ---
+fastapi>=0.109.2
+uvicorn[standard]>=0.27.1
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.9
+
+# --- Database ---
+sqlalchemy>=2.0.27
+alembic>=1.13.1
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.9
+websockets>=12.0
+
+# --- HTTP Client ---
+httpx>=0.26.0
+
+# --- Configuration ---
+pydantic-settings>=2.2.0
+
+# --- Logging ---
+loguru>=0.7.2
+
+# --- Testing ---
+pytest>=8.0.2
+pytest-asyncio>=0.23.5
+pytest-cov>=4.1.0
+httpx>=0.26.0
+
+# --- Linting / Formatting ---
+black>=24.2.0
+flake8>=7.0.0
+isort>=5.13.2
+PyYAML>=6.0.0

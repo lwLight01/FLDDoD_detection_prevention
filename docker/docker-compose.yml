@@ -1,0 +1,106 @@
+version: "3.9"
+
+# ==============================================================================
+# Core Services Compose File
+# Brings up: PostgreSQL/TimescaleDB, Mitigation Engine API, FL Server, Dashboard
+#
+# For the Mininet/Ryu SDN simulation, use docker-compose.mininet.yml
+# Ref: docs/Deployment.md § 2 (Local Research Deployment)
+# ==============================================================================
+
+networks:
+  ddos_net:
+    driver: bridge
+
+volumes:
+  db_data:
+  model_checkpoints:
+
+services:
+
+  # ============================================================
+  # Database: PostgreSQL with TimescaleDB extension
+  # ============================================================
+  db:
+    image: timescale/timescaledb:latest-pg16
+    container_name: ddos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ddos_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
+      POSTGRES_DB: ${POSTGRES_DB:-ddos_db}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ddos_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ddos_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Mitigation Engine & API Gateway (FastAPI)
+  # Implemented in Milestone 23
+  # ============================================================
+  mitigation_engine:
+    build:
+      context: ..
+      dockerfile: docker/mitigation_engine.Dockerfile
+    container_name: ddos_mitigation_engine
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ddos_user}:${POSTGRES_PASSWORD:-change_this_password}@db:5432/${POSTGRES_DB:-ddos_db}
+    ports:
+      - "8000:8000"
+    networks:
+      - ddos_net
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/monitoring/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================
+  # Flower Federated Learning Server
+  # Implemented in Milestone 13
+  # ============================================================
+  fl_server:
+    build:
+      context: ..
+      dockerfile: docker/fl_server.Dockerfile
+    container_name: ddos_fl_server
+    restart: unless-stopped
+    env_file: ../.env
+    ports:
+      - "8080:8080"   # gRPC
+    volumes:
+      - model_checkpoints:/app/checkpoints
+    networks:
+      - ddos_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ============================================================
+  # React Dashboard (Served by Nginx)
+  # Implemented in Milestone 32
+  # ============================================================
+  dashboard:
+    build:
+      context: ..
+      dockerfile: docker/dashboard.Dockerfile
+    container_name: ddos_dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - ddos_net
+    depends_on:
+      - mitigation_engine

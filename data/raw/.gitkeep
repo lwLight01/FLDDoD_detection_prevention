@@ -1,0 +1,2 @@
+# This directory holds raw PCAP files and raw CSVs (CIC-DDoS2019, etc.)
+# Files in data/ are gitignored — use scripts/download_datasets.sh to populate.

@@ -1,0 +1,71 @@
+version: "3.9"
+
+# ==============================================================================
+# Mininet / Ryu SDN Simulation Compose File
+# Requires privileged mode and a Linux host with Open vSwitch installed.
+#
+# Usage:
+#   docker-compose -f docker/docker-compose.mininet.yml up
+#
+# IMPORTANT: This compose file cannot run on Windows natively.
+#            Use a Linux VM or WSL2 with kernel OvS support.
+#
+# Ref: docs/Deployment.md § 4 (SDN Simulation)
+#      docs/DevelopmentRoadmap.md — Milestone 43
+# ==============================================================================
+
+networks:
+  sdn_net:
+    driver: bridge
+  ddos_net:
+    external: true   # Share with core services from docker-compose.yml
+
+services:
+
+  # ============================================================
+  # Ryu SDN Controller
+  # Handles OpenFlow 1.3 and accepts REST commands from Mitigation Engine
+  # ============================================================
+  ryu_controller:
+    build:
+      context: ..
+      dockerfile: docker/ryu.Dockerfile
+    container_name: ddos_ryu_controller
+    restart: unless-stopped
+    ports:
+      - "6633:6633"   # OpenFlow 1.0 (legacy)
+      - "6653:6653"   # OpenFlow 1.3
+      - "8081:8080"   # Ryu REST API (mapped to 8081 to avoid conflict)
+    networks:
+      - sdn_net
+      - ddos_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/stats/switches"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================
+  # Mininet Topology Container
+  # Requires privileged access and OvS kernel module on host
+  # Implemented in Milestone 38
+  # ============================================================
+  mininet:
+    image: iwaseyusuke/mininet:ubuntu-focal
+    container_name: ddos_mininet
+    privileged: true
+    network_mode: host   # Mininet requires host networking for OvS
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../src/sdn_controller:/app/sdn_controller
+      - ../scripts:/app/scripts
+    command: >
+      bash -c "
+        mn --custom /app/sdn_controller/mininet_topo.py
+           --topo ddos_topo
+           --controller remote,ip=127.0.0.1,port=6653
+      "
+    depends_on:
+      ryu_controller:
+        condition: service_healthy

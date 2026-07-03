@@ -1,0 +1,2 @@
+# This directory holds cleaned, normalized tabular data ready for training.
+# Files in data/ are gitignored — populate by running the EDA notebook.
