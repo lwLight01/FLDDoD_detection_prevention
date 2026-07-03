@@ -10,3 +10,8 @@ exclude = '''
   | src/dashboard/node_modules
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+src_paths = ["src", "tests"]
