@@ -59,9 +59,9 @@
 
 ---
 
-## Phase 2: Data Engineering & Centralized Baseline (Milestones 6-12)
+## Phase 2: Data Engineering & Centralized Baseline (Milestones 6-12) ✅ COMPLETE
 
-### Milestone 6: Raw Data Parsing (PCAP to CSV)
+### Milestone 6: Raw Data Parsing (PCAP to CSV) ✅
 *   **Objective:** Develop a script to extract tabular flow features from raw PCAPs using CICFlowMeter or Ryu offline.
 *   **Files:** `notebooks/01_eda_and_cleaning.ipynb`
 *   **Dependencies:** M3
@@ -72,7 +72,7 @@
 *   **Risk:** High (Data extraction tools can be buggy)
 *   **Priority:** High
 
-### Milestone 7: Exploratory Data Analysis (EDA)
+### Milestone 7: Exploratory Data Analysis (EDA) ✅
 *   **Objective:** Analyze class imbalance, feature correlation, and distributions.
 *   **Files:** `notebooks/01_eda_and_cleaning.ipynb`
 *   **Dependencies:** M6
@@ -83,7 +83,7 @@
 *   **Risk:** Low
 *   **Priority:** Medium
 
-### Milestone 8: Data Normalization & Categorical Encoding
+### Milestone 8: Data Normalization & Categorical Encoding ✅
 *   **Objective:** Implement Quantile Transformers and Tokenizers for tabular data.
 *   **Files:** `src/fl_client/dataset.py`
 *   **Dependencies:** M7
@@ -94,7 +94,7 @@
 *   **Risk:** Medium (Handling unseen categorical tokens)
 *   **Priority:** High
 
-### Milestone 9: Data Splitting (Non-IID Simulation)
+### Milestone 9: Data Splitting (Non-IID Simulation) ✅
 *   **Objective:** Script to partition the master dataset into skewed subsets for FL clients.
 *   **Files:** `scripts/create_fl_splits.py`
 *   **Dependencies:** M8
@@ -105,7 +105,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 10: Implement Traditional Baseline Models
+### Milestone 10: Implement Traditional Baseline Models ✅
 *   **Objective:** Train Random Forest and XGBoost to establish performance benchmarks.
 *   **Files:** `notebooks/02_centralized_baseline.ipynb`
 *   **Dependencies:** M8
@@ -116,7 +116,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 11: Implement Centralized FT-Transformer
+### Milestone 11: Implement Centralized FT-Transformer ✅
 *   **Objective:** Build and train the PyTorch Tabular FT-Transformer on the centralized dataset.
 *   **Files:** `notebooks/03_ft_transformer_tuning.ipynb`, `src/fl_client/model.py`
 *   **Dependencies:** M8
@@ -127,7 +127,7 @@
 *   **Risk:** High (Transformer hyperparameter tuning on tabular data is difficult)
 *   **Priority:** High
 
-### Milestone 12: Integrate SHAP Explainability (Offline)
+### Milestone 12: Integrate SHAP Explainability (Offline) ✅
 *   **Objective:** Apply `shap.DeepExplainer` to the centralized FT-Transformer model.
 *   **Files:** `notebooks/04_shap_analysis.ipynb`
 *   **Dependencies:** M11
@@ -210,7 +210,7 @@
 
 ### Milestone 19: Local Differential Privacy (DP-SGD)
 *   **Objective:** Integrate Opacus to clip gradients and add noise locally.
-*   **Files:** `src/fl_client/client.py`
+*   **Files:** `src/fl_client/client.py`, `src/fl_server/dp_manager.py`
 *   **Dependencies:** M16
 *   **Tests:** Assert gradients are bounded by clipping threshold $C$.
 *   **Deliverables:** Differentially private client updates.
