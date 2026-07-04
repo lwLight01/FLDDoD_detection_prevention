@@ -1,38 +1,5 @@
 #!/usr/bin/env python3
-"""
-scripts/create_fl_splits.py
----------------------------
-Partition the master processed dataset into skewed, Non-IID subsets for
-Federated Learning clients.
-
-Milestone 9 — depends on Milestone 8 (data/processed/<master>.csv).
-
-Non-IID Strategy:
------------------
-The script uses a **Dirichlet distribution** over class labels to assign
-data to clients.  Lower ``alpha`` values produce higher data heterogeneity
-(more non-IID), while higher values approach IID distribution.
-
-Additionally, a **protocol-skewing** option forces certain partitions to be
-dominated by a specific protocol (e.g., one client sees mostly TCP, another
-mostly UDP), reflecting realistic edge-node specialisation.
-
-Usage:
-------
-    python scripts/create_fl_splits.py \\
-        --input  data/processed/cicddos2019_processed.csv \\
-        --output data/splits/ \\
-        --n-clients 5 \\
-        --alpha 0.5 \\
-        --seed 42
-
-Acceptance Criteria (M9):
-    - Partitions accurately reflect non-IID edge environments.
-    - Label distributions vary significantly across splits.
-    - Each split is exported as a CSV to data/splits/client_<N>.csv.
-
-Ref: docs/DevelopmentRoadmap.md — Milestone 9
-"""
+"""scripts/create_fl_splits.py"""
 
 from __future__ import annotations
 
@@ -45,11 +12,7 @@ import numpy as np
 import pandas as pd
 
 
-# ---------------------------------------------------------------------------
-# Core splitting logic
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 def dirichlet_split(
     df: pd.DataFrame,
     n_clients: int,
@@ -57,24 +20,7 @@ def dirichlet_split(
     label_col: str = "Label",
     seed: int = 42,
 ) -> list[pd.DataFrame]:
-    """Partition *df* into *n_clients* Non-IID subsets via Dirichlet sampling.
-
-    Each unique class label's samples are distributed across clients according
-    to a Dirichlet(alpha) probability vector.  Lower alpha → more skewed.
-
-    Args:
-        df: Master DataFrame (already cleaned and encoded).
-        n_clients: Number of FL client partitions to generate.
-        alpha: Dirichlet concentration parameter.  Typical values:
-            - 0.1  → highly non-IID (each client dominated by 1–2 classes)
-            - 0.5  → moderately non-IID (recommended default)
-            - 100  → near-IID
-        label_col: Name of the binary/multiclass target column.
-        seed: NumPy random seed for reproducibility.
-
-    Returns:
-        List of *n_clients* DataFrames.
-    """
+    """Partition *df* into *n_clients* Non-IID subsets via Dirichlet sampling."""
     rng = np.random.default_rng(seed)
     clients: list[list[pd.DataFrame]] = [[] for _ in range(n_clients)]
 
@@ -103,19 +49,7 @@ def protocol_skew_split(
     n_clients: int,
     seed: int = 42,
 ) -> list[pd.DataFrame]:
-    """Assign clients protocol-skewed partitions (one protocol per client).
-
-    Useful for simulating edge nodes that see predominantly one traffic type.
-    Remaining protocols are distributed evenly.
-
-    Args:
-        df: Master DataFrame with a ``Protocol`` column (ordinal-encoded or raw).
-        n_clients: Number of client partitions.
-        seed: Random seed.
-
-    Returns:
-        List of *n_clients* DataFrames.
-    """
+    """Assign clients protocol-skewed partitions (one protocol per client)."""
     rng = np.random.default_rng(seed)
     protocols = df["Protocol"].unique().tolist()
     partitions: list[pd.DataFrame] = []
@@ -139,11 +73,7 @@ def protocol_skew_split(
     return partitions
 
 
-# ---------------------------------------------------------------------------
-# Analysis & reporting
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 def analyse_splits(partitions: list[pd.DataFrame], label_col: str = "Label") -> dict:
     """Compute per-client class distributions and return a report dict."""
     report: dict = {"n_clients": len(partitions), "clients": []}
@@ -173,11 +103,7 @@ def print_report(report: dict) -> None:
     print("=" * 60 + "\n")
 
 
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Partition master CSV into Non-IID FL client splits."

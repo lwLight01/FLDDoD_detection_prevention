@@ -1,21 +1,4 @@
-"""
-mitigation_engine/db/models.py
----------------------------------
-SQLAlchemy 2.0 ORM models matching the schema in docs/Database.md.
-
-Tables:
-  roles              — Role definitions (ADMIN, ANALYST, READONLY)
-  users              — Dashboard user accounts with RBAC roles
-  fl_rounds          — Federated learning round metadata
-  fl_clients         — Registered edge nodes with trust scores
-  fl_client_updates  — Per-round per-client update records
-  models             — Deployed FT-Transformer version registry
-  traffic_history    — TimescaleDB HyperTable of network flow records
-  attack_alerts      — TimescaleDB HyperTable of DDoS detections
-  mitigation_actions — Log of all rule installations (autonomous + manual)
-
-Ref: docs/Database.md § 2, docs/DevelopmentRoadmap.md — Milestone 4
-"""
+"""mitigation_engine/db/models.py"""
 
 import uuid
 from datetime import datetime
@@ -37,11 +20,7 @@ class Base(DeclarativeBase):
     """Shared declarative base for all ORM models."""
 
 
-# ---------------------------------------------------------------------------
-# Identity & RBAC
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class Role(Base):
     """RBAC role definition. Values: ADMIN, ANALYST, READONLY."""
 
@@ -84,11 +63,7 @@ class User(Base):
         return f"<User username={self.username}>"
 
 
-# ---------------------------------------------------------------------------
-# Federated Learning State
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class FLRound(Base):
     """Record of a completed federated learning aggregation round."""
 
@@ -159,11 +134,7 @@ class FLClientUpdate(Base):
     client: Mapped[FLClient] = relationship("FLClient", back_populates="updates")
 
 
-# ---------------------------------------------------------------------------
-# Model Registry
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class ModelVersion(Base):
     """Registry of deployed FT-Transformer model versions."""
 
@@ -179,16 +150,9 @@ class ModelVersion(Base):
         return f"<ModelVersion tag={self.version_tag} active={self.is_active}>"
 
 
-# ---------------------------------------------------------------------------
-# Telemetry (TimescaleDB HyperTables)
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class TrafficHistory(Base):
-    """
-    Real-time network flow telemetry.
-    Converted to a TimescaleDB HyperTable on 'timestamp' in the Alembic migration.
-    """
+    """Real-time network flow telemetry."""
 
     __tablename__ = "traffic_history"
 
@@ -213,10 +177,7 @@ class TrafficHistory(Base):
 
 
 class AttackAlert(Base):
-    """
-    DDoS detection alert from an edge inference client.
-    Converted to a TimescaleDB HyperTable on 'detected_at' in the Alembic migration.
-    """
+    """DDoS detection alert from an edge inference client."""
 
     __tablename__ = "attack_alerts"
 
@@ -251,11 +212,7 @@ class AttackAlert(Base):
         )
 
 
-# ---------------------------------------------------------------------------
-# SDN Mitigation Log
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class MitigationAction(Base):
     """Record of an autonomous or manual SDN mitigation action."""
 

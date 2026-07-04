@@ -1,24 +1,4 @@
-"""
-fl_client/dataset.py
---------------------
-PyTorch Dataset and DataLoader for tabular network flow data.
-
-Responsibilities:
-  - Load a local CSV partition (Non-IID split) into a PyTorch Dataset.
-  - Apply preprocessing transformations consistently with the global
-    normalization parameters (frozen QuantileTransformer state from the
-    centralized training phase).
-  - Handle class imbalance via WeightedRandomSampler.
-
-Data Schema (CIC-DDoS2019 features, ref: docs/FTTransformer.md § 1.1):
-  Continuous: Flow Duration, Total Fwd Packets, Total Bwd Packets,
-              Fwd Packet Length Max/Min/Mean, Flow Bytes/s, Flow Packets/s,
-              Init_Win_bytes_forward, Active Mean, Idle Mean
-  Categorical: Protocol, TCP Flags (encoded as ordinal)
-  Target:     Label (0=Benign, 1=DDoS)
-
-Ref: docs/FTTransformer.md § 1, docs/DevelopmentRoadmap.md — Milestone 8
-"""
+"""fl_client/dataset.py"""
 
 from __future__ import annotations
 
@@ -32,10 +12,7 @@ import torch
 from sklearn.preprocessing import QuantileTransformer
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
-# ---------------------------------------------------------------------------
-# Feature schema — keep in sync with docs/FTTransformer.md § 1.1
-# ---------------------------------------------------------------------------
-
+# (Summary comment)
 CONTINUOUS_FEATURES: list[str] = [
     "Flow Duration",
     "Total Fwd Packets",
@@ -57,8 +34,7 @@ CATEGORICAL_FEATURES: list[str] = [
 
 TARGET_COLUMN: str = "Label"
 
-# Cardinality of each categorical feature (max ordinal value + 1).
-# Values exceeding these bounds are mapped to the [UNK] index (cardinality - 1).
+# (Summary comment)
 CATEGORICAL_CARDINALITIES: dict[str, int] = {
     "Protocol": 5,   # 0=HOPOPT,1=TCP,2=UDP,3=ICMP,4=UNK
     "TCP Flags": 65, # 0-63 for 6-bit flag combinations, 64=UNK
@@ -68,28 +44,14 @@ SCALER_FILENAME = "quantile_scaler.pkl"
 ENCODING_FILENAME = "categorical_encoders.pkl"
 
 
-# ---------------------------------------------------------------------------
-# Preprocessing utilities
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 def fit_scaler(
     df: pd.DataFrame,
     n_quantiles: int = 1000,
     output_distribution: str = "normal",
     random_state: int = 42,
 ) -> QuantileTransformer:
-    """Fit a QuantileTransformer on the continuous features of *df*.
-
-    Args:
-        df: DataFrame containing at least the CONTINUOUS_FEATURES columns.
-        n_quantiles: Number of quantiles to compute (capped at sample count).
-        output_distribution: ``"normal"`` or ``"uniform"``.
-        random_state: Reproducibility seed.
-
-    Returns:
-        A fitted ``QuantileTransformer`` instance.
-    """
+    """Fit a QuantileTransformer on the continuous features of *df*."""
     n_quantiles = min(n_quantiles, len(df))
     qt = QuantileTransformer(
         n_quantiles=n_quantiles,
@@ -115,13 +77,7 @@ def load_scaler(scaler_path: Path) -> QuantileTransformer:
 
 
 def encode_categoricals(df: pd.DataFrame) -> pd.DataFrame:
-    """Map raw categorical values to ordinal integers in-place.
-
-    Unknown values are mapped to the ``[UNK]`` index (cardinality - 1).
-
-    Protocol mapping: TCP=6→1, UDP=17→2, ICMP=1→3, others→0 or UNK.
-    TCP Flags: raw integer bitmask clamped to [0, 63]; 64=UNK.
-    """
+    """Map raw categorical values to ordinal integers in-place."""
     df = df.copy()
 
     # Protocol
@@ -144,21 +100,9 @@ def encode_categoricals(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Dataset
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class NetworkFlowDataset(Dataset):
-    """PyTorch Dataset wrapping a pre-processed network flow CSV.
-
-    Args:
-        csv_path: Path to a CSV file containing network flow features and labels.
-        scaler: A fitted ``QuantileTransformer``. If ``None``, a new one is fit
-            on this CSV (use only for the centralised training set).
-        fit_new_scaler: When ``True`` and *scaler* is ``None``, fit a scaler
-            on this dataset and expose it via ``self.scaler``.
-    """
+    """PyTorch Dataset wrapping a pre-processed network flow CSV."""
 
     def __init__(
         self,
@@ -197,10 +141,7 @@ class NetworkFlowDataset(Dataset):
         labels = df[TARGET_COLUMN].values.astype(np.float32)
         self.y = torch.tensor(labels, dtype=torch.float32)
 
-    # ------------------------------------------------------------------
-    # Private helpers
-    # ------------------------------------------------------------------
-
+    # (Summary comment)
     @staticmethod
     def _clean(df: pd.DataFrame) -> pd.DataFrame:
         """Standardise column names and coerce types."""
@@ -217,10 +158,7 @@ class NetworkFlowDataset(Dataset):
             )
         return df
 
-    # ------------------------------------------------------------------
-    # Dataset protocol
-    # ------------------------------------------------------------------
-
+    # (Summary comment)
     def __len__(self) -> int:
         return len(self.y)
 
@@ -241,11 +179,7 @@ class NetworkFlowDataset(Dataset):
         return torch.tensor(weights, dtype=torch.float32)
 
 
-# ---------------------------------------------------------------------------
-# DataLoader factory
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 def build_dataloaders(
     csv_path: Path,
     scaler: Optional[QuantileTransformer] = None,
@@ -256,27 +190,7 @@ def build_dataloaders(
     fit_new_scaler: bool = False,
     use_weighted_sampler: bool = True,
 ) -> Tuple[DataLoader, DataLoader, Optional[QuantileTransformer]]:
-    """Build train and validation DataLoaders from a single CSV file.
-
-    Args:
-        csv_path: Path to the CSV file.
-        scaler: Pre-fitted QuantileTransformer (e.g., frozen global scaler).
-            If ``None`` and *fit_new_scaler* is ``True``, a new scaler is
-            fitted on the training split.
-        train_ratio: Fraction of data used for training (remainder → validation).
-        batch_size: Mini-batch size.
-        num_workers: DataLoader worker processes (0 = main process only).
-        seed: Random seed for the train/val split.
-        fit_new_scaler: Whether to fit a new QuantileTransformer if *scaler*
-            is not provided.
-        use_weighted_sampler: If ``True``, apply ``WeightedRandomSampler`` on
-            the training loader to handle class imbalance.
-
-    Returns:
-        Tuple of ``(train_loader, val_loader, scaler)``.  The returned *scaler*
-        may be ``None`` if neither *scaler* was provided nor *fit_new_scaler*
-        was requested.
-    """
+    """Build train and validation DataLoaders from a single CSV file."""
     csv_path = Path(csv_path)
     full_dataset = NetworkFlowDataset(
         csv_path,

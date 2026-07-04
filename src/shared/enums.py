@@ -1,9 +1,4 @@
-"""
-shared/enums.py
----------------
-Global enumerations shared across all Python microservices.
-Any service importing from this module must have `src/shared` on its PYTHONPATH.
-"""
+"""shared/enums.py"""
 
 from enum import Enum
 
@@ -20,10 +15,7 @@ class AttackType(str, Enum):
 
 
 class MitigationLevel(str, Enum):
-    """
-    Multi-stage mitigation escalation levels.
-    Maps to Risk Score thresholds defined in docs/Mitigation.md.
-    """
+    """Multi-stage mitigation escalation levels."""
 
     NONE = "NONE"  # Risk < 50  — no action
     RATE_LIMIT = "RATE_LIMIT"  # Risk 50-70 — Stage 1
@@ -41,10 +33,7 @@ class MitigationStatus(str, Enum):
 
 
 class UserRole(str, Enum):
-    """
-    RBAC roles for the admin dashboard.
-    Permissions defined in docs/Dashboard.md § 2.
-    """
+    """RBAC roles for the admin dashboard."""
 
     ADMIN = "ADMIN"
     ANALYST = "ANALYST"

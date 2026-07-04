@@ -1,20 +1,10 @@
-"""
-mitigation_engine/config.py
----------------------------
-Runtime configuration for the Mitigation Engine and FastAPI backend.
-All values read from environment variables (or .env file).
-
-Ref: docs/Deployment.md § 7, docs/API.md
-"""
+"""mitigation_engine/config.py"""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class MitigationEngineConfig(BaseSettings):
-    """
-    Mitigation Engine runtime settings.
-    All fields map 1:1 to keys in .env.example.
-    """
+    """Mitigation Engine runtime settings."""
 
     # --- Database ---
     database_url: str = "postgresql://ddos_user:password@db:5432/ddos_db"
@@ -39,9 +29,7 @@ class MitigationEngineConfig(BaseSettings):
     # --- Risk Score Stage Thresholds ---
     risk_stage1_threshold: float = 50.0  # RATE_LIMIT
     risk_stage2_threshold: float = 70.0  # ISOLATE
-    risk_stage3_threshold: float = 90.0  # QUARANTINE
-
-    # --- Default TTL for rules (seconds) ---
+    risk_stage3_threshold: float = 90.0  # (Summary comment)
     default_mitigation_ttl_seconds: int = 3600
 
     # --- Logging ---

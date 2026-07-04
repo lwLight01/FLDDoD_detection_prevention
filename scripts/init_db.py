@@ -1,27 +1,4 @@
-"""
-scripts/init_db.py
--------------------
-Initialises the PostgreSQL database by running Alembic migrations.
-
-This script is the canonical way to create database tables for the
-Adaptive FL DDoS Detection system. It runs `alembic upgrade head`
-against the configured DATABASE_URL.
-
-Usage:
-    python scripts/init_db.py
-
-Prerequisites:
-    - PostgreSQL running (locally or via Docker Compose)
-    - DATABASE_URL set in .env or environment
-    - Virtual environment activated with all dependencies installed
-
-Acceptance Criteria (Milestone 4):
-    - `alembic upgrade head` creates all tables defined in docs/Database.md.
-    - Includes TimescaleDB hypertable creation for traffic_history, attack_alerts.
-
-Ref: docs/Database.md § 4 (Migration Strategy)
-     docs/DevelopmentRoadmap.md — Milestone 4
-"""
+"""scripts/init_db.py"""
 
 import os
 import sys

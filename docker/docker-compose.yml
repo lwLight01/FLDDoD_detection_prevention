@@ -15,6 +15,7 @@ networks:
 volumes:
   db_data:
   model_checkpoints:
+  fl_certs:          # Shared mTLS certificates (Milestone 22)
 
 services:
 
@@ -104,3 +105,81 @@ services:
       - ddos_net
     depends_on:
       - mitigation_engine
+
+  # ============================================================
+  # Flower FL Clients (Milestone 21)
+  # Three simulated edge node clients connect to the FL server.
+  # Each client uses a different non-IID data partition.
+  # ============================================================
+  fl_client_0:
+    build:
+      context: ..
+      dockerfile: docker/fl_client.Dockerfile
+    container_name: ddos_fl_client_0
+    restart: on-failure
+    env_file: ../.env
+    environment:
+      CLIENT_ID: "client_0"
+      DATA_PATH: "/app/data/local_partition/client_0.csv"
+      SCALER_PATH: "/app/data/quantile_scaler.pkl"
+      SERVER_ADDRESS: "fl_server:8080"
+    volumes:
+      - ../data/fl_splits:/app/data/local_partition:ro
+      - ../data/processed:/app/data:ro
+      - model_checkpoints:/app/checkpoints:ro
+      - fl_certs:/app/certs:ro
+    networks:
+      - ddos_net
+    depends_on:
+      - fl_server
+    profiles:
+      - fl_clients
+
+  fl_client_1:
+    build:
+      context: ..
+      dockerfile: docker/fl_client.Dockerfile
+    container_name: ddos_fl_client_1
+    restart: on-failure
+    env_file: ../.env
+    environment:
+      CLIENT_ID: "client_1"
+      DATA_PATH: "/app/data/local_partition/client_1.csv"
+      SCALER_PATH: "/app/data/quantile_scaler.pkl"
+      SERVER_ADDRESS: "fl_server:8080"
+    volumes:
+      - ../data/fl_splits:/app/data/local_partition:ro
+      - ../data/processed:/app/data:ro
+      - model_checkpoints:/app/checkpoints:ro
+      - fl_certs:/app/certs:ro
+    networks:
+      - ddos_net
+    depends_on:
+      - fl_server
+    profiles:
+      - fl_clients
+
+  fl_client_2:
+    build:
+      context: ..
+      dockerfile: docker/fl_client.Dockerfile
+    container_name: ddos_fl_client_2
+    restart: on-failure
+    env_file: ../.env
+    environment:
+      CLIENT_ID: "client_2"
+      DATA_PATH: "/app/data/local_partition/client_2.csv"
+      SCALER_PATH: "/app/data/quantile_scaler.pkl"
+      SERVER_ADDRESS: "fl_server:8080"
+    volumes:
+      - ../data/fl_splits:/app/data/local_partition:ro
+      - ../data/processed:/app/data:ro
+      - model_checkpoints:/app/checkpoints:ro
+      - fl_certs:/app/certs:ro
+    networks:
+      - ddos_net
+    depends_on:
+      - fl_server
+    profiles:
+      - fl_clients
+

@@ -1,29 +1,4 @@
-"""
-fl_client/model.py
-------------------
-FT-Transformer model definition for tabular DDoS flow classification.
-
-Architecture (from docs/FTTransformer.md § 2.1):
-  - Feature Tokenizer: Embeds each continuous and categorical feature into a
-    dense vector of dimension `d` (embedding_dim).
-  - [CLS] Token: Prepended to the sequence of feature embeddings. Its final
-    hidden state is used as the classification representation.
-  - Transformer Encoder Blocks: `num_blocks` blocks, each with multi-head
-    self-attention and feed-forward sublayers.
-  - Classification Head: Linear(d → 1) → Sigmoid (or BCEWithLogitsLoss
-    handles the sigmoid during training for numerical stability).
-
-Hyperparameter defaults (tuned in Milestone 11 notebook):
-  embedding_dim  = 64
-  num_blocks     = 3
-  num_heads      = 8
-  ffn_dim        = 256   (4 * embedding_dim)
-  attn_dropout   = 0.1
-  ffn_dropout    = 0.2
-
-Ref: docs/FTTransformer.md § 2
-     docs/DevelopmentRoadmap.md — Milestone 11
-"""
+"""fl_client/model.py"""
 
 from __future__ import annotations
 
@@ -36,30 +11,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-# ---------------------------------------------------------------------------
-# Configuration dataclass
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 @dataclass
 class FTTransformerConfig:
-    """Hyperparameter container for FT-Transformer.
-
-    Attributes:
-        n_cont_features: Number of continuous input features.
-        cat_cardinalities: Ordered list of cardinalities (vocab sizes) for
-            each categorical feature.  The model creates one embedding table
-            per entry.
-        embedding_dim: Token embedding dimension *d*.
-        num_blocks: Number of Transformer encoder blocks.
-        num_heads: Number of attention heads in each block.
-        ffn_dim: Hidden dimension of the feed-forward sub-layer inside each
-            Transformer block.  Defaults to ``4 * embedding_dim``.
-        attn_dropout: Dropout probability applied to attention weights.
-        ffn_dropout: Dropout probability applied inside the FFN sub-layer.
-        embed_dropout: Dropout applied to the feature token embeddings after
-            the FeatureTokenizer, before the Transformer blocks.
-    """
+    """Hyperparameter container for FT-Transformer."""
 
     n_cont_features: int
     cat_cardinalities: List[int] = field(default_factory=list)
@@ -76,23 +31,9 @@ class FTTransformerConfig:
             self.ffn_dim = 4 * self.embedding_dim
 
 
-# ---------------------------------------------------------------------------
-# Feature Tokenizer
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class FeatureTokenizer(nn.Module):
-    """Converts raw tabular features into a sequence of dense token embeddings.
-
-    Each **continuous** feature x_i is projected to:
-        token_i = W_i * x_i + b_i   (d-dimensional vector)
-
-    Each **categorical** feature c_j is looked up in a trainable embedding
-    table of size (cardinality_j, d).
-
-    A learnable ``[CLS]`` token is prepended, yielding a final token sequence
-    of length ``n_cont + n_cat + 1``.
-    """
+    """Converts raw tabular features into a sequence of dense token embeddings."""
 
     def __init__(self, config: FTTransformerConfig) -> None:
         super().__init__()
@@ -121,20 +62,10 @@ class FeatureTokenizer(nn.Module):
         x_cont: torch.Tensor,
         x_cat: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """Tokenise features into a (B, n_tokens, d) embedding sequence.
-
-        Args:
-            x_cont: Continuous features of shape ``(B, n_cont)``.
-            x_cat: Categorical feature indices of shape ``(B, n_cat)``.
-                Can be ``None`` if there are no categorical features.
-
-        Returns:
-            Token tensor of shape ``(B, 1 + n_cont [+ n_cat], d)``.
-        """
+        """Tokenise features into a (B, n_tokens, d) embedding sequence."""
         B = x_cont.size(0)
 
-        # Continuous tokens: (B, n_cont) → (B, n_cont, d)
-        # x_cont[:, i] * W[i] + b[i]
+        # (Summary comment)
         cont_tokens = x_cont.unsqueeze(-1) * self.cont_weights.unsqueeze(0) + self.cont_biases.unsqueeze(0)
 
         tokens_list = [cont_tokens]
@@ -156,21 +87,9 @@ class FeatureTokenizer(nn.Module):
         return tokens
 
 
-# ---------------------------------------------------------------------------
-# Transformer Building Blocks
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class TransformerBlock(nn.Module):
-    """Pre-LayerNorm Transformer encoder block.
-
-    Structure (Pre-LN for training stability):
-        x = x + MultiHeadSelfAttention(LayerNorm(x))
-        x = x + FFN(LayerNorm(x))
-
-    The FFN uses a GEGLU activation for improved performance on tabular data
-    (ref: Noam Shazeer, "GLU Variants Improve Transformer", 2020).
-    """
+    """Pre-LayerNorm Transformer encoder block."""
 
     def __init__(self, config: FTTransformerConfig) -> None:
         super().__init__()
@@ -193,14 +112,7 @@ class TransformerBlock(nn.Module):
         self.ffn_dropout = nn.Dropout(config.ffn_dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Apply one Transformer encoder block.
-
-        Args:
-            x: Input tensor of shape ``(B, T, d)``.
-
-        Returns:
-            Output tensor of shape ``(B, T, d)``.
-        """
+        """Apply one Transformer encoder block."""
         # Self-attention (Pre-LN)
         residual = x
         x = self.norm1(x)
@@ -221,28 +133,9 @@ class TransformerBlock(nn.Module):
         return x
 
 
-# ---------------------------------------------------------------------------
-# Full FT-Transformer
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class FTTransformerModel(nn.Module):
-    """FT-Transformer for tabular binary classification.
-
-    Accepts continuous features (normalised to ~N(0,1) via QuantileTransformer)
-    and optionally categorical features (ordinal-encoded), and returns a raw
-    logit suitable for ``BCEWithLogitsLoss``.
-
-    Usage::
-
-        config = FTTransformerConfig(
-            n_cont_features=11,
-            cat_cardinalities=[5, 65],
-        )
-        model = FTTransformerModel(config)
-        logit = model(x_cont, x_cat)  # shape: (B, 1)
-        prob  = torch.sigmoid(logit)
-    """
+    """FT-Transformer for tabular binary classification."""
 
     def __init__(self, config: FTTransformerConfig) -> None:
         super().__init__()
@@ -264,16 +157,7 @@ class FTTransformerModel(nn.Module):
         x_cont: torch.Tensor,
         x_cat: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """Forward pass of the FT-Transformer.
-
-        Args:
-            x_cont: Continuous features, shape ``(B, n_cont)``.
-            x_cat: Categorical features (ordinal indices), shape ``(B, n_cat)``.
-                Pass ``None`` if no categorical features are used.
-
-        Returns:
-            Raw logit tensor of shape ``(B, 1)``.
-        """
+        """Forward pass of the FT-Transformer."""
         # 1. Tokenise: (B, 1 + n_features, d)
         tokens = self.tokenizer(x_cont, x_cat)
         tokens = self.embed_dropout(tokens)
@@ -299,22 +183,9 @@ class FTTransformerModel(nn.Module):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
 
-# ---------------------------------------------------------------------------
-# Factory helper
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 def build_model(config: Optional[FTTransformerConfig] = None) -> FTTransformerModel:
-    """Convenience factory that builds the default FT-Transformer.
-
-    Args:
-        config: A custom ``FTTransformerConfig``.  If ``None``, uses the
-            defaults defined in ``FTTransformerConfig`` with CIC-DDoS2019
-            feature counts (11 continuous, 2 categorical).
-
-    Returns:
-        An untrained ``FTTransformerModel`` instance.
-    """
+    """Convenience factory that builds the default FT-Transformer."""
     if config is None:
         from src.fl_client.dataset import CATEGORICAL_CARDINALITIES, CONTINUOUS_FEATURES
 

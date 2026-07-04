@@ -1,19 +1,4 @@
-"""
-mitigation_engine/db/crud.py
-------------------------------
-Database query functions (CRUD operations) for all ORM models.
-
-Convention:
-  create_*  — insert a new record, return ORM object
-  get_*     — fetch single or list of records
-  update_*  — modify an existing record
-  delete_*  — soft or hard delete
-
-All functions are async and accept an AsyncSession parameter.
-
-Ref: docs/Database.md, docs/API.md
-     docs/DevelopmentRoadmap.md — Milestones 4, 23-27
-"""
+"""mitigation_engine/db/crud.py"""
 
 from __future__ import annotations
 
@@ -34,11 +19,7 @@ from mitigation_engine.db.models import (
     User,
 )
 
-# ---------------------------------------------------------------------------
-# Roles
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def get_role_by_name(db: AsyncSession, name: str) -> Optional[Role]:
     """Fetch a role by its name (e.g., 'ADMIN')."""
     result = await db.execute(select(Role).where(Role.name == name))
@@ -53,11 +34,7 @@ async def create_role(db: AsyncSession, name: str) -> Role:
     return role
 
 
-# ---------------------------------------------------------------------------
-# Users
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
     """Fetch a user by username for authentication."""
     result = await db.execute(select(User).where(User.username == username))
@@ -83,11 +60,7 @@ async def create_user(
     return user
 
 
-# ---------------------------------------------------------------------------
-# FL Clients
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def get_fl_client_by_node_name(db: AsyncSession, node_name: str) -> Optional[FLClient]:
     """Fetch an FL client by its node name."""
     result = await db.execute(select(FLClient).where(FLClient.node_name == node_name))
@@ -119,11 +92,7 @@ async def update_fl_client_trust_score(
     )
 
 
-# ---------------------------------------------------------------------------
-# FL Rounds
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def create_fl_round(
     db: AsyncSession, model_version_tag: str, start_time: Optional[datetime] = None
 ) -> FLRound:
@@ -162,11 +131,7 @@ async def get_latest_fl_rounds(db: AsyncSession, limit: int = 20) -> list[FLRoun
     return list(result.scalars().all())
 
 
-# ---------------------------------------------------------------------------
-# Attack Alerts
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def create_attack_alert(
     db: AsyncSession,
     client_id: Optional[uuid.UUID],
@@ -198,11 +163,7 @@ async def get_recent_alerts(db: AsyncSession, limit: int = 50, skip: int = 0) ->
     return list(result.scalars().all())
 
 
-# ---------------------------------------------------------------------------
-# Mitigation Actions
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def create_mitigation_action(
     db: AsyncSession,
     alert_id: uuid.UUID,
@@ -247,11 +208,7 @@ async def get_mitigation_history(
     return list(result.scalars().all())
 
 
-# ---------------------------------------------------------------------------
-# Model Registry
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 async def get_active_model(db: AsyncSession) -> Optional[ModelVersion]:
     """Fetch the currently active FT-Transformer model version."""
     result = await db.execute(select(ModelVersion).where(ModelVersion.is_active.is_(True)))
@@ -269,10 +226,7 @@ async def create_model_version(
 
 
 async def activate_model_version(db: AsyncSession, version_tag: str) -> None:
-    """
-    Set a specific model version as active.
-    Deactivates all other versions first (enforces partial unique index).
-    """
+    """Set a specific model version as active."""
     await db.execute(update(ModelVersion).values(is_active=False))
     await db.execute(
         update(ModelVersion).where(ModelVersion.version_tag == version_tag).values(is_active=True)
