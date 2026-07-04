@@ -30,7 +30,7 @@ class MitigationEngineConfig(BaseSettings):
     risk_stage1_threshold: float = 50.0  # RATE_LIMIT
     risk_stage2_threshold: float = 70.0  # ISOLATE
     risk_stage3_threshold: float = 90.0  # (Summary comment)
-default_mitigation_ttl_seconds: int = 3600
+    default_mitigation_ttl_seconds: int = 3600
 
     # --- Logging ---
     log_level: str = "INFO"

@@ -142,7 +142,7 @@ class NetworkFlowDataset(Dataset):
         self.y = torch.tensor(labels, dtype=torch.float32)
 
     # (Summary comment)
-@staticmethod
+    @staticmethod
     def _clean(df: pd.DataFrame) -> pd.DataFrame:
         """Standardise column names and coerce types."""
         df.columns = df.columns.str.strip()
@@ -159,7 +159,7 @@ class NetworkFlowDataset(Dataset):
         return df
 
     # (Summary comment)
-def __len__(self) -> int:
+    def __len__(self) -> int:
         return len(self.y)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:

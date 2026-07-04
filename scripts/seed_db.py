@@ -17,7 +17,7 @@ def main() -> None:
     print("=" * 60)
 
     # (Summary comment)
-print("\n[NOTICE] Database seeding deferred to Milestone 4.")
+    print("\n[NOTICE] Database seeding deferred to Milestone 4.")
     print("         Run this script again after implementing ORM models.")
     print("=" * 60)
 

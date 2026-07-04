@@ -1,21 +1,10 @@
-"""
-fl_server/config.py
--------------------
-Server-side configuration loaded from environment variables.
-All values have documented defaults — override via .env or Docker environment.
-
-Ref: docs/FederatedLearning.md § 6 (Client Failure & Dropouts)
-     docs/Deployment.md § 7 (Environment Variables)
-"""
+"""fl_server/config.py"""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class FLServerConfig(BaseSettings):
-    """
-    Federated Learning Server runtime configuration.
-    Values are read from environment variables (case-insensitive).
-    """
+    """Federated Learning Server runtime configuration."""
 
     # --- Federated Learning Rounds ---
     fl_num_rounds: int = 100
@@ -23,8 +12,7 @@ class FLServerConfig(BaseSettings):
     fl_min_available_clients: int = 15
     fl_fraction_fit: float = 0.5
 
-    # --- Trust Scoring ---
-    # Cosine similarity below this threshold triggers a trust penalty.
+    # (Summary comment)
     fl_trust_penalty_threshold: float = 0.7
     # A client whose trust score drops below this is auto-banned.
     fl_auto_ban_threshold: float = 0.1

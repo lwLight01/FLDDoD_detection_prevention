@@ -66,7 +66,7 @@ class FeatureTokenizer(nn.Module):
         B = x_cont.size(0)
 
         # (Summary comment)
-cont_tokens = x_cont.unsqueeze(-1) * self.cont_weights.unsqueeze(0) + self.cont_biases.unsqueeze(0)
+        cont_tokens = x_cont.unsqueeze(-1) * self.cont_weights.unsqueeze(0) + self.cont_biases.unsqueeze(0)
 
         tokens_list = [cont_tokens]
 
