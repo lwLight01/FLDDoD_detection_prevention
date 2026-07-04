@@ -1,22 +1,4 @@
-"""
-mitigation_engine/db/database.py
------------------------------------
-SQLAlchemy async engine and session factory.
-
-Uses asyncpg driver for non-blocking PostgreSQL queries.
-Session lifecycle managed via FastAPI dependency injection.
-
-Usage:
-    from mitigation_engine.db.database import get_db
-
-    @app.get("/example")
-    async def example(db: AsyncSession = Depends(get_db)):
-        result = await db.execute(select(User))
-        ...
-
-Ref: docs/Database.md, docs/DevelopmentRoadmap.md — Milestone 4 (schema),
-     Milestone 23 (FastAPI DI integration)
-"""
+"""mitigation_engine/db/database.py"""
 
 from __future__ import annotations
 
@@ -69,16 +51,7 @@ def _get_session_factory() -> async_sessionmaker[AsyncSession]:
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """
-    FastAPI dependency that yields a database session per request.
-
-    Usage:
-        @router.get("/items")
-        async def list_items(db: AsyncSession = Depends(get_db)):
-            ...
-
-    The session is automatically committed on success and rolled back on error.
-    """
+    """FastAPI dependency that yields a database session per request."""
     session_factory = _get_session_factory()
     async with session_factory() as session:
         try:

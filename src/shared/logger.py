@@ -1,17 +1,4 @@
-"""
-shared/logger.py
-----------------
-Centralised structured logging configuration using Loguru.
-Import this in every Python microservice entry point (main.py).
-
-Usage:
-    from shared.logger import get_logger
-    log = get_logger(__name__)
-    log.info("Service started")
-    log.bind(client_id="abc123").warning("Low trust score detected")
-
-Ref: docs/Architecture.md § Logging
-"""
+"""shared/logger.py"""
 
 import sys
 
@@ -19,14 +6,7 @@ from loguru import logger
 
 
 def configure_logging(log_level: str = "INFO", service_name: str = "ddos-system") -> None:
-    """
-    Configure Loguru with structured JSON output for production.
-    Call once in main.py before any other logging.
-
-    Args:
-        log_level:    Logging level string (DEBUG, INFO, WARNING, ERROR).
-        service_name: Name tag injected into every log record for log aggregation.
-    """
+    """Configure Loguru with structured JSON output for production."""
     logger.remove()  # Remove default handler
 
     log_format = (
@@ -60,10 +40,5 @@ def configure_logging(log_level: str = "INFO", service_name: str = "ddos-system"
 
 
 def get_logger(name: str):
-    """
-    Returns a Loguru logger bound with the calling module name.
-    This is a convenience wrapper — Loguru's global logger is already
-    configured by configure_logging(), so the returned object is the
-    same singleton with a context bind for the module name.
-    """
+    """Returns a Loguru logger bound with the calling module name."""
     return logger.bind(module=name)

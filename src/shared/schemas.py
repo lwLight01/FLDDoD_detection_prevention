@@ -1,12 +1,4 @@
-"""
-shared/schemas.py
------------------
-Pydantic v2 models for request/response validation and inter-service contracts.
-All microservices (fl_client, mitigation_engine) import from here to ensure
-a single source of truth for data shapes.
-
-Ref: docs/API.md, docs/FederatedLearning.md
-"""
+"""shared/schemas.py"""
 
 from datetime import datetime
 from typing import Dict, Optional
@@ -16,16 +8,9 @@ from pydantic import BaseModel, Field, IPvAnyAddress, field_validator
 
 from shared.enums import MitigationLevel, MitigationStatus, SeverityLevel
 
-# ---------------------------------------------------------------------------
-# Alert Schemas  (Edge Client → Mitigation Engine)
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class AlertCreate(BaseModel):
-    """
-    Payload sent by fl_client when FT-Transformer detects a DDoS flow.
-    See: docs/API.md § 3.1
-    """
+    """Payload sent by fl_client when FT-Transformer detects a DDoS flow."""
 
     client_id: UUID = Field(..., description="UUID of the reporting edge node.")
     flow_id: Optional[int] = Field(None, description="Row ID from traffic_history, if available.")
@@ -57,16 +42,9 @@ class AlertResponse(BaseModel):
     severity: SeverityLevel
 
 
-# ---------------------------------------------------------------------------
-# Mitigation Schemas  (Mitigation Engine ↔ Dashboard / Ryu)
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class MitigationActionCreate(BaseModel):
-    """
-    Manual mitigation trigger from the admin dashboard.
-    See: docs/API.md § 2.1
-    """
+    """Manual mitigation trigger from the admin dashboard."""
 
     target_ip: IPvAnyAddress
     action_type: MitigationLevel = Field(..., description="Stage 1, 2, or 3 mitigation level.")
@@ -87,11 +65,7 @@ class MitigationActionResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ---------------------------------------------------------------------------
-# Federated Learning Schemas  (Dashboard ← API)
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class FLRoundResponse(BaseModel):
     """Summary of a completed federated learning round."""
 
@@ -117,11 +91,7 @@ class ClientTrustResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ---------------------------------------------------------------------------
-# Health Check Schema
-# ---------------------------------------------------------------------------
-
-
+# (Summary comment)
 class HealthResponse(BaseModel):
     """Liveness/readiness probe response. See: docs/API.md § 6.2"""
 
