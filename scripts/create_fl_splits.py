@@ -194,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
     for i, part in enumerate(partitions):
         out_path = args.output / f"client_{i:02d}.csv"
         part.to_csv(out_path, index=False)
-        print(f"[INFO] Saved client {i:02d}: {len(part):,} samples → {out_path}")
+        print(f"[INFO] Saved client {i:02d}: {len(part):,} samples -> {out_path}")
 
     # ── Report ────────────────────────────────────────────────────────────────
     report = analyse_splits(partitions, label_col=args.label_col)

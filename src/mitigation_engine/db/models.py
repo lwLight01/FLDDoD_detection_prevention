@@ -10,6 +10,7 @@ from sqlalchemy import (
     Float,
     Integer,
     String,
+    ForeignKey,
 )
 from sqlalchemy.dialects.postgresql import INET, JSONB, TIMESTAMP, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -54,7 +55,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
-    role_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True)
+    role_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("roles.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
 
     role: Mapped[Optional[Role]] = relationship("Role", back_populates="users")
@@ -121,10 +122,10 @@ class FLClientUpdate(Base):
         server_default=func.uuid_generate_v4(),
     )
     round_id: Mapped[int] = mapped_column(
-        Integer,
+        ForeignKey("fl_rounds.id", ondelete="CASCADE"),
         nullable=False,
     )
-    client_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    client_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("fl_clients.id"), nullable=False)
     submitted_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     cosine_similarity: Mapped[float] = mapped_column(Float, nullable=False)
     assigned_trust_weight: Mapped[float] = mapped_column(Float, nullable=False)
@@ -190,7 +191,7 @@ class AttackAlert(Base):
     detected_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), primary_key=True)
     flow_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     flow_timestamp: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    client_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True)
+    client_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("fl_clients.id"), nullable=True)
     prediction_probability: Mapped[float] = mapped_column(Float, nullable=False)
     shap_values: Mapped[dict] = mapped_column(JSONB, nullable=False)
     severity_level: Mapped[str] = mapped_column(String(20), nullable=False)

@@ -15,8 +15,6 @@ networks:
 volumes:
   db_data:
   model_checkpoints:
-  fl_certs:          # Shared mTLS certificates (Milestone 22)
-
 services:
 
   # ============================================================
@@ -83,6 +81,7 @@ services:
       - "8080:8080"   # gRPC
     volumes:
       - model_checkpoints:/app/checkpoints
+      - ../certs:/app/certs:ro
     networks:
       - ddos_net
     depends_on:
@@ -127,7 +126,7 @@ services:
       - ../data/fl_splits:/app/data/local_partition:ro
       - ../data/processed:/app/data:ro
       - model_checkpoints:/app/checkpoints:ro
-      - fl_certs:/app/certs:ro
+      - ../certs:/app/certs:ro
     networks:
       - ddos_net
     depends_on:
@@ -151,7 +150,7 @@ services:
       - ../data/fl_splits:/app/data/local_partition:ro
       - ../data/processed:/app/data:ro
       - model_checkpoints:/app/checkpoints:ro
-      - fl_certs:/app/certs:ro
+      - ../certs:/app/certs:ro
     networks:
       - ddos_net
     depends_on:
@@ -175,7 +174,7 @@ services:
       - ../data/fl_splits:/app/data/local_partition:ro
       - ../data/processed:/app/data:ro
       - model_checkpoints:/app/checkpoints:ro
-      - fl_certs:/app/certs:ro
+      - ../certs:/app/certs:ro
     networks:
       - ddos_net
     depends_on:
