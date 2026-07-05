@@ -140,9 +140,9 @@
 
 ---
 
-## Phase 3: Federated Learning Implementation (Milestones 13-22)
+## Phase 3: Federated Learning Implementation (Milestones 13-22) [M13-M18 ✅]
 
-### Milestone 13: Scaffold Flower Server
+### Milestone 13: Scaffold Flower Server ✅
 *   **Objective:** Implement the basic gRPC FL Server.
 *   **Files:** `src/fl_server/main.py`
 *   **Dependencies:** M11
@@ -153,7 +153,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 14: Scaffold Flower Client
+### Milestone 14: Scaffold Flower Client ✅
 *   **Objective:** Wrap the FT-Transformer in `flwr.client.NumPyClient`.
 *   **Files:** `src/fl_client/client.py`
 *   **Dependencies:** M11, M13
@@ -164,7 +164,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 15: Implement FedAvg Strategy
+### Milestone 15: Implement FedAvg Strategy ✅
 *   **Objective:** Complete an end-to-end standard FL round using FedAvg.
 *   **Files:** `src/fl_server/strategy.py`
 *   **Dependencies:** M14
@@ -175,7 +175,7 @@
 *   **Risk:** Medium (Serialization bottlenecks)
 *   **Priority:** High
 
-### Milestone 16: Implement FedProx for Non-IID
+### Milestone 16: Implement FedProx for Non-IID ✅
 *   **Objective:** Add proximal term to client loss function to handle data skew.
 *   **Files:** `src/fl_client/client.py`
 *   **Dependencies:** M9, M15
@@ -186,7 +186,7 @@
 *   **Risk:** High (Tuning the proximal coefficient $\mu$)
 *   **Priority:** High
 
-### Milestone 17: Develop Adaptive Trust Manager (Cosine Similarity)
+### Milestone 17: Develop Adaptive Trust Manager (Cosine Similarity) ✅
 *   **Objective:** Algorithm to penalize clients based on gradient deviation.
 *   **Files:** `src/fl_server/trust_manager.py`
 *   **Dependencies:** M15
@@ -197,7 +197,7 @@
 *   **Risk:** Medium (Mathematical edge cases)
 *   **Priority:** High
 
-### Milestone 18: Integrate Trust Strategy into Flower Server
+### Milestone 18: Integrate Trust Strategy into Flower Server ✅
 *   **Objective:** Override standard aggregation to weight by Trust Score instead of just data volume.
 *   **Files:** `src/fl_server/strategy.py`
 *   **Dependencies:** M17
@@ -208,7 +208,7 @@
 *   **Risk:** High
 *   **Priority:** High
 
-### Milestone 19: Local Differential Privacy (DP-SGD)
+### ✅ Milestone 19: Local Differential Privacy (DP-SGD)
 *   **Objective:** Integrate Opacus to clip gradients and add noise locally.
 *   **Files:** `src/fl_client/client.py`, `src/fl_server/dp_manager.py`
 *   **Dependencies:** M16
@@ -219,7 +219,7 @@
 *   **Risk:** High (Significant accuracy degradation if tuned poorly)
 *   **Priority:** Medium
 
-### Milestone 20: Server Checkpointing & DB Logging
+### ✅ Milestone 20: Server Checkpointing & DB Logging
 *   **Objective:** Save global models and log round metrics to PostgreSQL.
 *   **Files:** `src/fl_server/main.py`, Database schemas
 *   **Dependencies:** M4, M18
@@ -230,7 +230,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 21: Containerize FL Infrastructure
+### ✅ Milestone 21: Containerize FL Infrastructure
 *   **Objective:** Add Server and Client to `docker-compose.yml`.
 *   **Files:** `docker/fl_server.Dockerfile`, `docker/fl_client.Dockerfile`
 *   **Dependencies:** M20
@@ -241,7 +241,7 @@
 *   **Risk:** Medium (Docker networking issues)
 *   **Priority:** High
 
-### Milestone 22: Secure Aggregation (mTLS)
+### ✅ Milestone 22: Secure Aggregation (mTLS)
 *   **Objective:** Generate certificates and enforce mTLS on the gRPC channels.
 *   **Files:** `scripts/generate_certs.sh`
 *   **Dependencies:** M21
