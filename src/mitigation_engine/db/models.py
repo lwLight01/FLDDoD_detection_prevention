@@ -1,9 +1,6 @@
-"""mitigation_engine/db/models.py"""
-
 import uuid
 from datetime import datetime
 from typing import Optional
-
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -15,18 +12,9 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import INET, JSONB, TIMESTAMP, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-
-
 class Base(DeclarativeBase):
-    """Shared declarative base for all ORM models."""
-
-
-# (Summary comment)
 class Role(Base):
-    """RBAC role definition. Values: ADMIN, ANALYST, READONLY."""
-
     __tablename__ = "roles"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -34,18 +22,11 @@ class Role(Base):
         server_default=func.uuid_generate_v4(),
     )
     name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-
     users: Mapped[list["User"]] = relationship("User", back_populates="role")
-
     def __repr__(self) -> str:
         return f"<Role name={self.name}>"
-
-
 class User(Base):
-    """Dashboard administrator / analyst account."""
-
     __tablename__ = "users"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -57,39 +38,24 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     role_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("roles.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
-
     role: Mapped[Optional[Role]] = relationship("Role", back_populates="users")
-
     def __repr__(self) -> str:
         return f"<User username={self.username}>"
-
-
-# (Summary comment)
 class FLRound(Base):
-    """Record of a completed federated learning aggregation round."""
-
     __tablename__ = "fl_rounds"
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     start_time: Mapped[datetime] = mapped_column(nullable=False)
     end_time: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     global_accuracy: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     global_loss: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     model_version_tag: Mapped[str] = mapped_column(String(100), nullable=False)
-
     client_updates: Mapped[list["FLClientUpdate"]] = relationship(
         "FLClientUpdate", back_populates="round", cascade="all, delete-orphan"
     )
-
     def __repr__(self) -> str:
         return f"<FLRound id={self.id} model={self.model_version_tag}>"
-
-
 class FLClient(Base):
-    """Registered edge node participating in federated learning."""
-
     __tablename__ = "fl_clients"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -100,21 +66,14 @@ class FLClient(Base):
     node_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     current_trust_score: Mapped[float] = mapped_column(Float, default=1.0, server_default="1.0")
     is_banned: Mapped[bool] = mapped_column(Boolean, default=False, server_default="FALSE")
-
     updates: Mapped[list["FLClientUpdate"]] = relationship(
         "FLClientUpdate", back_populates="client"
     )
     alerts: Mapped[list["AttackAlert"]] = relationship("AttackAlert", back_populates="client")
-
     def __repr__(self) -> str:
         return f"<FLClient node={self.node_name} trust={self.current_trust_score:.3f}>"
-
-
 class FLClientUpdate(Base):
-    """Per-round gradient submission record for each edge client."""
-
     __tablename__ = "fl_client_updates"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -130,33 +89,19 @@ class FLClientUpdate(Base):
     cosine_similarity: Mapped[float] = mapped_column(Float, nullable=False)
     assigned_trust_weight: Mapped[float] = mapped_column(Float, nullable=False)
     accepted: Mapped[bool] = mapped_column(Boolean, nullable=False)
-
     round: Mapped[FLRound] = relationship("FLRound", back_populates="client_updates")
     client: Mapped[FLClient] = relationship("FLClient", back_populates="updates")
-
-
-# (Summary comment)
 class ModelVersion(Base):
-    """Registry of deployed FT-Transformer model versions."""
-
     __tablename__ = "models"
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     version_tag: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     deployed_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
     weights_file_path: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False, server_default="FALSE")
-
     def __repr__(self) -> str:
         return f"<ModelVersion tag={self.version_tag} active={self.is_active}>"
-
-
-# (Summary comment)
 class TrafficHistory(Base):
-    """Real-time network flow telemetry."""
-
     __tablename__ = "traffic_history"
-
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     timestamp: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), primary_key=True)
     src_ip: Mapped[str] = mapped_column(INET, nullable=False)
@@ -167,21 +112,13 @@ class TrafficHistory(Base):
     flow_duration: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     total_fwd_packets: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     total_bwd_packets: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
-
     __table_args__ = (
-        # TimescaleDB requires the partition key in the composite PK
         {"comment": "TimescaleDB HyperTable partitioned by timestamp"},
     )
-
     def __repr__(self) -> str:
         return f"<TrafficHistory src={self.src_ip} dst={self.dst_ip} t={self.timestamp}>"
-
-
 class AttackAlert(Base):
-    """DDoS detection alert from an edge inference client."""
-
     __tablename__ = "attack_alerts"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -195,7 +132,6 @@ class AttackAlert(Base):
     prediction_probability: Mapped[float] = mapped_column(Float, nullable=False)
     shap_values: Mapped[dict] = mapped_column(JSONB, nullable=False)
     severity_level: Mapped[str] = mapped_column(String(20), nullable=False)
-
     client: Mapped[Optional[FLClient]] = relationship("FLClient", back_populates="alerts")
     mitigation_action: Mapped[Optional["MitigationAction"]] = relationship(
         "MitigationAction",
@@ -206,19 +142,12 @@ class AttackAlert(Base):
             " AttackAlert.detected_at == foreign(MitigationAction.alert_detected_at))"
         ),
     )
-
     def __repr__(self) -> str:
         return (
             f"<AttackAlert severity={self.severity_level} prob={self.prediction_probability:.3f}>"
         )
-
-
-# (Summary comment)
 class MitigationAction(Base):
-    """Record of an autonomous or manual SDN mitigation action."""
-
     __tablename__ = "mitigation_actions"
-
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
@@ -232,7 +161,6 @@ class MitigationAction(Base):
     target_ip: Mapped[str] = mapped_column(INET, nullable=False, index=True)
     sdn_rule_payload: Mapped[dict] = mapped_column(JSONB, nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="PENDING")
-
     alert: Mapped[Optional[AttackAlert]] = relationship(
         "AttackAlert",
         back_populates="mitigation_action",
@@ -242,7 +170,6 @@ class MitigationAction(Base):
             " MitigationAction.alert_detected_at == AttackAlert.detected_at)"
         ),
     )
-
     def __repr__(self) -> str:
         return (
             f"<MitigationAction type={self.action_type} "
