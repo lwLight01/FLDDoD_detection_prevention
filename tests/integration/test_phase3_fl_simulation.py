@@ -22,12 +22,17 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+import pytest
 import numpy as np
 import pandas as pd
-import pytest
-
 import flwr as flw
 from flwr.common import Context, NDArrays
+
+try:
+    import ray
+    HAS_RAY = True
+except ImportError:
+    HAS_RAY = False
 
 from src.fl_client.client import DDosFlowerClient
 from src.fl_client.dataset import (
@@ -106,6 +111,7 @@ def setup_csv_paths():
 
 
 @pytest.mark.integration
+@pytest.mark.skipif(not HAS_RAY, reason="ray is required for flwr.simulation but is not installed")
 class TestFLSimulation:
     """End-to-end simulated FL rounds using flwr.simulation.
 

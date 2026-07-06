@@ -256,7 +256,7 @@
 
 ## Phase 4: Autonomous Mitigation Engine (Milestones 23-31)
 
-### Milestone 23: FastAPI Backend Scaffolding
+### ✅ Milestone 23: FastAPI Backend Scaffolding
 *   **Objective:** Initialize endpoints and JWT authentication.
 *   **Files:** `src/mitigation_engine/main.py`, `api/auth.py`
 *   **Dependencies:** M5
@@ -267,7 +267,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 24: Alert Receiver Endpoint
+### ✅ Milestone 24: Alert Receiver Endpoint
 *   **Objective:** API to ingest JSON alerts from edge clients.
 *   **Files:** `src/mitigation_engine/api/alerts.py`
 *   **Dependencies:** M23
@@ -278,7 +278,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 25: Implement Risk Scoring Engine
+### ✅ Milestone 25: Implement Risk Scoring Engine
 *   **Objective:** Code the mathematical risk formula combining probability, frequency, and decay.
 *   **Files:** `src/mitigation_engine/services/analyzer.py`
 *   **Dependencies:** M24
@@ -289,7 +289,7 @@
 *   **Risk:** Medium (Formula tuning)
 *   **Priority:** High
 
-### Milestone 26: XAI Rule Generator (SHAP Translation)
+### ✅ Milestone 26: XAI Rule Generator (SHAP Translation)
 *   **Objective:** Translate top SHAP features into specific mitigation strategies (e.g., TCP SYN limit).
 *   **Files:** `src/mitigation_engine/services/rule_generator.py`
 *   **Dependencies:** M25
@@ -300,7 +300,7 @@
 *   **Risk:** High (Complex logic mapping)
 *   **Priority:** High
 
-### Milestone 27: SDN Client (Ryu REST Integration)
+### ✅ Milestone 27: SDN Client (Ryu REST Integration)
 *   **Objective:** HTTP client to push JSON OpenFlow rules to the Ryu controller.
 *   **Files:** `src/mitigation_engine/services/sdn_client.py`
 *   **Dependencies:** M26
@@ -311,7 +311,7 @@
 *   **Risk:** Medium
 *   **Priority:** High
 
-### Milestone 28: TTL and Rollback Task Scheduler
+### ✅ Milestone 28: TTL and Rollback Task Scheduler
 *   **Objective:** Implement background tasks to expire mitigations.
 *   **Files:** `src/mitigation_engine/services/scheduler.py`
 *   **Dependencies:** M27
@@ -322,7 +322,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 29: WebSockets for Live Alerts
+### ✅ Milestone 29: WebSockets for Live Alerts
 *   **Objective:** Stream incoming alerts and mitigation actions to connected UI clients.
 *   **Files:** `src/mitigation_engine/api/websocket.py`
 *   **Dependencies:** M24
@@ -333,7 +333,7 @@
 *   **Risk:** Low
 *   **Priority:** Medium
 
-### Milestone 30: Edge Client Inference Script
+### ✅ Milestone 30: Edge Client Inference Script
 *   **Objective:** Write script for the Edge Node to actively ingest flows, run inference, generate SHAP, and call the Alert API.
 *   **Files:** `src/fl_client/inference.py`, `src/fl_client/alert_sender.py`
 *   **Dependencies:** M12, M24
@@ -344,7 +344,7 @@
 *   **Risk:** High (Inference latency must be very low)
 *   **Priority:** High
 
-### Milestone 31: Full Engine Integration Test
+### ✅ Milestone 31: Full Engine Integration Test
 *   **Objective:** Verify entire flow from Alert POST to Ryu API command.
 *   **Files:** `tests/integration/test_engine_to_ryu.py`
 *   **Dependencies:** M28, M30
