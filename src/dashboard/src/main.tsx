@@ -1,15 +1,13 @@
-/**
- * src/dashboard/src/main.tsx
- * ---------------------------
- * React application entry point.
- *
- * Mounts <App /> into the #root div.
- * Full implementation in Milestone 32.
- *
- * Ref: docs/Dashboard.md, docs/DevelopmentRoadmap.md — Milestone 32
- */
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'
+import { BrowserRouter } from 'react-router-dom'
 
-// TODO (Milestone 32): Implement React Router + Zustand store + TailwindCSS
-// TODO (Milestone 32): Connect to Mitigation Engine WebSocket
-
-console.log("Dashboard stub — implement in Milestone 32.");
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>,
+)

@@ -359,7 +359,7 @@
 
 ## Phase 5: Dashboard Frontend (Milestones 32-37)
 
-### Milestone 32: React App Scaffolding & Routing
+### ✅ Milestone 32: React App Scaffolding & Routing
 *   **Objective:** Initialize Vite/React app with TailwindCSS and React Router.
 *   **Files:** `src/dashboard/App.tsx`, `package.json`
 *   **Dependencies:** None
@@ -370,7 +370,7 @@
 *   **Risk:** Low
 *   **Priority:** Medium
 
-### Milestone 33: Authentication & State Management
+### ✅ Milestone 33: Authentication & State Management
 *   **Objective:** Implement Login view, JWT storage, and Zustand store.
 *   **Files:** `src/dashboard/hooks/useAuth.ts`
 *   **Dependencies:** M23, M32
@@ -381,7 +381,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 34: Home Dashboard & WebSocket Integration
+### ✅ Milestone 34: Home Dashboard & WebSocket Integration
 *   **Objective:** Build high-level KPIs and connect the notification toast system.
 *   **Files:** `src/dashboard/pages/Home.tsx`
 *   **Dependencies:** M29, M33
@@ -392,7 +392,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 35: Attack Monitor & SHAP Visualization
+### ✅ Milestone 35: Attack Monitor & SHAP Visualization
 *   **Objective:** Build the XAI interface using Recharts to display feature importances.
 *   **Files:** `src/dashboard/pages/AttackMonitor.tsx`
 *   **Dependencies:** M33
@@ -403,7 +403,7 @@
 *   **Risk:** Low
 *   **Priority:** High
 
-### Milestone 36: Federated Learning Status Views
+### ✅ Milestone 36: Federated Learning Status Views
 *   **Objective:** Visualize training curves and client trust scores.
 *   **Files:** `src/dashboard/pages/FLStatus.tsx`
 *   **Dependencies:** M33
@@ -414,7 +414,7 @@
 *   **Risk:** Low
 *   **Priority:** Medium
 
-### Milestone 37: Mitigation & Firewall Control Panel
+### ✅ Milestone 37: Mitigation & Firewall Control Panel
 *   **Objective:** View active rules and add Manual Override functionality.
 *   **Files:** `src/dashboard/pages/Mitigation.tsx`
 *   **Dependencies:** M21, M33
