@@ -32,7 +32,8 @@ async def create_alert(alert: AlertCreate, db: AsyncSession = Depends(get_db)):
         detected_at=alert.timestamp
     )
     db.add(db_alert)
-    await db.flush() # To get db_alert.id if it's default
+    await db.flush()           # Populate db_alert.id (server-generated UUID)
+    await db.refresh(db_alert)  # Sync server defaults back to the ORM object
     
     mitigation_triggered = False
     
