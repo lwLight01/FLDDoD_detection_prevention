@@ -1,7 +1,4 @@
 # Adaptive Privacy-Preserving Federated Learning for DDoS Detection
-
-> **Master's Thesis | IEEE Publication | Open-Source**
->
 > *Adaptive Privacy-Preserving Federated Learning using FT-Transformer for Intelligent Real-Time DDoS Detection and Autonomous Multi-Stage Mitigation in Software Defined Networks.*
 
 [![CI Pipeline](https://github.com/your-org/ddos-fl-system/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/ddos-fl-system/actions/workflows/ci.yml)
@@ -30,22 +27,17 @@
 This system provides an end-to-end, privacy-preserving DDoS detection and mitigation framework. It trains an **FT-Transformer** model collaboratively across distributed network edge nodes using **Federated Learning (Flower)** — no raw traffic data ever leaves the edge. When a DDoS attack is detected, **SHAP** (Explainable AI) values inform an **Autonomous Mitigation Engine** that dynamically applies surgical OpenFlow rules via a **Ryu SDN Controller**.
 
 ### Key Properties
-| Property | Implementation |
-|---|---|
-| **Privacy** | Local Differential Privacy (DP-SGD via Opacus) |
-| **Robustness** | Adaptive Trust Scoring (Cosine Similarity) |
-| **Explainability** | SHAP DeepExplainer on FT-Transformer |
-| **Mitigation** | Multi-Stage SDN (Rate Limit → Isolate → Block) |
-| **Network Sim** | Mininet + OpenVSwitch + Ryu Controller |
-
----
-
+Property | Implementation 
+**Privacy** | Local Differential Privacy (DP-SGD via Opacus)
+**Robustness** | Adaptive Trust Scoring (Cosine Similarity)
+**Explainability** | SHAP DeepExplainer on FT-Transformer
+**Mitigation** | Multi-Stage SDN (Rate Limit → Isolate → Block)
+**Network Sim** | Mininet + OpenVSwitch + Ryu Controller
 ## Architecture
 
-```
 Edge Nodes (FL Clients)          Trusted Core
 ┌─────────────────────┐          ┌──────────────────────────────────┐
-│  FT-Transformer     │─gRPC────▶│  Flower Server (Aggregator)      │
+│  FT-Transformer     │─gRPC────▶│  Flower Server (Aggregator)     │
 │  Inference + SHAP   │          │  Adaptive Trust Scoring          │
 │  Local DP-SGD       │          └──────────────────────────────────┘
 └─────────────────────┘                     │ REST
@@ -62,32 +54,24 @@ Edge Nodes (FL Clients)          Trusted Core
                                  │  Live Alerts + SHAP Charts + FL  │
                                  └──────────────────────────────────┘
 ```
-
 For full architectural details see [`docs/Architecture.md`](docs/Architecture.md).
-
 ---
 
 ## Technology Stack
-
-| Layer | Technology |
-|---|---|
-| ML Model | FT-Transformer (PyTorch Tabular) |
-| Federated Learning | Flower (flwr) 1.7.0 |
-| Explainability | SHAP 0.44.0 |
-| Backend | FastAPI 0.109 + Uvicorn |
-| Database | PostgreSQL 16 + TimescaleDB |
-| SDN Controller | Ryu 4.34 |
-| Network Simulation | Mininet + OpenVSwitch |
-| Frontend | React 18 + TypeScript + TailwindCSS |
-| Containerization | Docker + Docker Compose |
-
----
+Layer | Technology
+ML Model | FT-Transformer (PyTorch Tabular)
+Federated Learning | Flower (flwr) 1.7.0
+Explainability | SHAP 0.44.0
+Backend | FastAPI 0.109 + Uvicorn 
+Database | PostgreSQL 16 + TimescaleDB
+SDN Controller | Ryu 4.34
+Network Simulation | Mininet + OpenVSwitch
+Frontend | React 18 + TypeScript + TailwindCSS
+Containerization | Docker + Docker Compose
 
 ## Project Structure
 
-```
-.
-├── docs/                    # All architectural and research documentation
+├── docs/                    # All architectural documentation
 │   ├── Architecture.md      # C4 diagrams, microservice design
 │   ├── Database.md          # PostgreSQL/TimescaleDB schema
 │   ├── API.md               # REST API specifications
@@ -115,28 +99,21 @@ For full architectural details see [`docs/Architecture.md`](docs/Architecture.md
 ├── alembic/                 # Database migration scripts
 ├── data/                    # Datasets (git-ignored)
 └── .github/workflows/       # CI/CD pipelines
-```
-
----
 
 ## Setup Guide (Step-by-Step)
 
 This section walks you from a clean machine to a running Milestone 1 environment.
 
 ### Prerequisites
-
 Install the following before starting:
 
-| Tool | Version | Download |
-|---|---|---|
-| **Python** | 3.10+ | https://www.python.org/downloads/ |
-| **Git** | Latest | https://git-scm.com/downloads |
-| **Docker Desktop** | Latest | https://www.docker.com/products/docker-desktop/ |
-| **Node.js** | 18+ | https://nodejs.org/ (for Dashboard, Milestone 32) |
+Tool | Version | Download 
+**Python** | 3.10+ | https://www.python.org/downloads/
+**Git** | Latest | https://git-scm.com/downloads
+**Docker Desktop** | Latest | https://www.docker.com/products/docker-desktop/
+**Node.js** | 18+ | https://nodejs.org/ (for Dashboard, Milestone 32)
 
 > **Windows users:** Use PowerShell or Git Bash. The shell scripts (`*.sh`) require Git Bash or WSL2.
-
----
 
 ### Step 1: Clone the Repository
 
@@ -144,8 +121,6 @@ Install the following before starting:
 git clone https://github.com/your-org/ddos-fl-system.git
 cd ddos-fl-system
 ```
-
----
 
 ### Step 2: Create a Python Virtual Environment
 
@@ -160,9 +135,6 @@ source .venv/bin/activate
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
-
----
-
 ### Step 3: Install Python Dependencies
 
 ```bash
@@ -172,9 +144,8 @@ pip install -r requirements.txt
 
 This installs: FastAPI, Flower (flwr), PyTorch, SHAP, SQLAlchemy, Alembic, Loguru, pytest, black, flake8, isort.
 
-> ⚠️ **Note:** `torch` is a large download (~2 GB). Use a stable internet connection.
+> **Note:** `torch` is a large download (~2 GB). Use a stable internet connection.
 
----
 
 ### Step 4: Configure Environment Variables
 
@@ -186,8 +157,6 @@ cp .env.example .env
 #   - DATABASE_URL (for local dev: postgresql://ddos_user:password@localhost:5432/ddos_db)
 #   - JWT_SECRET_KEY (generate: openssl rand -hex 32)
 ```
-
----
 
 ### Step 5: Start the Database (Docker)
 
@@ -201,8 +170,6 @@ docker compose -f docker/docker-compose.yml ps
 
 Expected output: `ddos_db ... (healthy)`
 
----
-
 ### Step 6: Run Database Migrations
 
 ```bash
@@ -215,8 +182,6 @@ Or directly with Alembic:
 alembic upgrade head
 ```
 
----
-
 ### Step 7: Seed the Database (Optional)
 
 ```bash
@@ -224,15 +189,12 @@ alembic upgrade head
 python scripts/seed_db.py
 ```
 
----
-
 ### Step 8: Verify the Setup
 
 ```bash
 # Run unit tests — should all pass
 pytest tests/unit/ -v
 ```
-
 Expected output:
 ```
 tests/unit/test_project_structure.py::... PASSED
@@ -240,8 +202,6 @@ tests/unit/test_shared_enums.py::... PASSED
 tests/unit/test_shared_schemas.py::... PASSED
 tests/unit/test_configs.py::... PASSED
 ```
-
----
 
 ## Running the System
 
@@ -311,29 +271,19 @@ open htmlcov/index.html
 | [`docs/DevelopmentRoadmap.md`](docs/DevelopmentRoadmap.md) | 47 milestones with acceptance criteria |
 | [`docs/ProjectStructure.md`](docs/ProjectStructure.md) | Folder layout and file responsibilities |
 
----
-
 ## Development Roadmap
 
 The project is divided into 7 phases and 47 milestones. See [`docs/DevelopmentRoadmap.md`](docs/DevelopmentRoadmap.md) for full details.
 
 | Phase | Milestones | Status |
 |---|---|---|
-| Phase 1: Research & Initialization | M1–M5 | ✅ M1 Complete |
-| Phase 2: Data Engineering | M6–M12 | 🔲 Pending |
-| Phase 3: Federated Learning | M13–M22 | 🔲 Pending |
-| Phase 4: Mitigation Engine | M23–M31 | 🔲 Pending |
-| Phase 5: Dashboard Frontend | M32–M37 | 🔲 Pending |
-| Phase 6: SDN Simulation | M38–M42 | 🔲 Pending |
+| Phase 1: Research & Initialization | M1–M5 | P1 Complete |
+| Phase 2: Data Engineering | M6–M12 |P2 Complete |
+| Phase 3: Federated Learning | M13–M22 | P3 Complete |
+| Phase 4: Mitigation Engine | M23–M31 | P4 Complete |
+| Phase 5: Dashboard Frontend | M32–M37 | P5 Complete|
+| Phase 6: SDN Simulation | M38–M42 | P6 Complete |
 | Phase 7: Integration & Evaluation | M43–M47 | 🔲 Pending |
-
----
-
-## Contributing
-
-This is a research project for academic publication. Contributions and forks are welcome after the initial IEEE submission. Please open an issue to discuss proposed changes.
-
----
 
 ## License
 
