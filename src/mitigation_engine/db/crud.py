@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import select, update
@@ -99,7 +99,7 @@ async def create_fl_round(
     """Create a new FL round record at round start."""
     fl_round = FLRound(
         model_version_tag=model_version_tag,
-        start_time=start_time or datetime.utcnow(),
+        start_time=start_time or datetime.now(timezone.utc),
     )
     db.add(fl_round)
     await db.flush()
@@ -118,7 +118,7 @@ async def close_fl_round(
         update(FLRound)
         .where(FLRound.id == round_id)
         .values(
-            end_time=end_time or datetime.utcnow(),
+            end_time=end_time or datetime.now(timezone.utc),
             global_accuracy=global_accuracy,
             global_loss=global_loss,
         )
@@ -147,7 +147,7 @@ async def create_attack_alert(
         prediction_probability=prediction_probability,
         shap_values=shap_values,
         severity_level=severity_level,
-        detected_at=detected_at or datetime.utcnow(),
+        detected_at=detected_at or datetime.now(timezone.utc),
         flow_id=flow_id,
     )
     db.add(alert)

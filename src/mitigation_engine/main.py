@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from mitigation_engine.config import settings
-from mitigation_engine.api import alerts, auth, websocket
+from mitigation_engine.api import alerts, auth, metrics, websocket
 from mitigation_engine.db.database import close_engine
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router)
 app.include_router(alerts.router)
+app.include_router(metrics.router)
 app.include_router(websocket.router)
 
 class HealthResponse(BaseModel):

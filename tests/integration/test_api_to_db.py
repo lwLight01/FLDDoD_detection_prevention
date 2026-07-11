@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from mitigation_engine.main import app
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 client = TestClient(app)
 
@@ -33,7 +33,7 @@ async def test_alert_endpoint_mocked_db(mocker):
         "src_ip": "192.168.1.50",
         "prediction_probability": 0.99,
         "shap_values": {"TCP_SYN": 0.8},
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
     
     # The endpoint is async and uses depends, but TestClient handles async implicitly in modern FastAPI

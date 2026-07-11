@@ -1,7 +1,7 @@
 """mitigation_engine/services/analyzer.py"""
 
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,7 +36,7 @@ class RiskAnalyzer:
         if not client_id:
             frequency = 1
         else:
-            five_mins_ago = datetime.utcnow() - timedelta(minutes=5)
+            five_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=5)
             # Use text or cast to uuid if needed, assuming client_id is uuid object
             stmt = select(AttackAlert).where(AttackAlert.client_id == client_id, AttackAlert.detected_at >= five_mins_ago)
             result = await db.execute(stmt)
