@@ -1,6 +1,6 @@
 """shared/schemas.py"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
 from uuid import UUID
 
@@ -23,7 +23,7 @@ class AlertCreate(BaseModel):
         ...,
         description="Top SHAP feature importances. Key = feature name, Value = SHAP contribution.",
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("shap_values")
     @classmethod
