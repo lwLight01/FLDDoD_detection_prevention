@@ -53,7 +53,11 @@ def db_engine():
     pytest.importorskip("sqlalchemy", reason="sqlalchemy required")
     from sqlalchemy import create_engine, text
 
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    engine = create_engine(
+        DATABASE_URL, 
+        pool_pre_ping=True,
+        connect_args={'connect_timeout': 3}
+    )
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
