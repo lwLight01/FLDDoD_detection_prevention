@@ -282,8 +282,8 @@ The project is divided into 7 phases and 47 milestones. See [`docs/DevelopmentRo
 | Phase 3: Federated Learning | M13–M22 | P3 Complete |
 | Phase 4: Mitigation Engine | M23–M31 | P4 Complete |
 | Phase 5: Dashboard Frontend | M32–M37 | P5 Complete|
-| Phase 6: SDN Simulation | M38–M42 | P6 Complete |
-| Phase 7: Integration & Evaluation | M43–M47 | 🔲 Pending |
+| Phase 6: SDN Simulation | M38–M42 | ✅ Done |
+| Phase 7: Integration & Evaluation | M43–M47 | ✅ Done |
 
 ## License
 
