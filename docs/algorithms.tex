@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section*{Project Algorithms}
+Here are the core algorithms used in the FLDDoD Detection and Mitigation system, formatted for Overleaf.
+
+\begin{algorithm}[H]
+\caption{Adaptive Trust-based Federated Aggregation}
+\begin{algorithmic}[1]
+\REQUIRE Set of client gradients $\mathcal{G} = \{g_1, g_2, \dots, g_K\}$, previous trust scores $\mathcal{S}^{t-1}$, penalty threshold $\tau_p$, auto-ban threshold $\tau_b$, EMA weight $\alpha$
+\ENSURE Updated trust scores $\mathcal{S}^t$, global gradient $G$
+\STATE \textbf{Initialize:} $G \leftarrow 0$, weight sum $W \leftarrow 0$
+\STATE Compute median gradient vector $g_{med} \leftarrow \text{median}(\mathcal{G})$ \COMMENT{Element-wise median across clients}
+\FOR{each client $k \in \{1 \dots K\}$}
+    \STATE $sim_k \leftarrow \frac{g_k \cdot g_{med}}{||g_k|| \cdot ||g_{med}||}$ \COMMENT{Cosine similarity to median}
+    \STATE $f_k \leftarrow \frac{sim_k + 1.0}{2.0}$ \COMMENT{Map from $[-1, 1]$ to $[0, 1]$}
+    \IF{$sim_k < \tau_p$}
+        \STATE $f_k \leftarrow f_k \times \max(sim_k, 0)$ \COMMENT{Apply severe trust penalty}
+    \ENDIF
+    \STATE $\mathcal{S}^t_k \leftarrow \alpha f_k + (1 - \alpha) \mathcal{S}^{t-1}_k$ \COMMENT{Exponential Moving Average (EMA) update}
+    \IF{$\mathcal{S}^t_k \ge \tau_b$}
+        \STATE $G \leftarrow G + \mathcal{S}^t_k g_k$ \COMMENT{Incorporate into global gradient}
+        \STATE $W \leftarrow W + \mathcal{S}^t_k$
+    \ELSE
+        \STATE $\text{Ban client } k$ \COMMENT{Auto-ban malicious/poisoning clients}
+    \ENDIF
+\ENDFOR
+\IF{$W > 0$}
+    \STATE $G \leftarrow G / W$ \COMMENT{Weighted Aggregation}
+\ENDIF
+\RETURN $\mathcal{S}^t, G$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Autonomous XAI-driven SDN Mitigation}
+\begin{algorithmic}[1]
+\REQUIRE Threat probability $p$, recent alert frequency $f$, SHAP values $\Phi$, source IP $ip_{src}$
+\ENSURE SDN mitigation rule $R$
+\STATE $score \leftarrow (p \times 100) + \min(f \times 5, 50)$ \COMMENT{Base risk calculation}
+\IF{$score < 40$}
+    \STATE \textbf{return} \texttt{MitigationLevel.NONE}
+\ELSIF{$score < 70$}
+    \STATE $level \leftarrow \texttt{RATE\_LIMIT}$
+    \STATE $payload[rate] \leftarrow 100$
+\ELSIF{$score < 90$}
+    \STATE $level \leftarrow \texttt{ISOLATE}$
+    \STATE $payload[vlan] \leftarrow \text{``quarantine''}$
+\ELSE
+    \STATE $level \leftarrow \texttt{QUARANTINE}$
+    \STATE $payload[action] \leftarrow \text{``drop''}$
+\ENDIF
+\STATE $f_{top} \leftarrow \arg\max(\Phi)$ \COMMENT{Identify dominant SHAP feature}
+\IF{$\text{``TCP''} \in f_{top} \textbf{ or } \text{``SYN''} \in f_{top}$}
+    \STATE $payload[protocol] \leftarrow \text{``TCP''}$
+    \IF{$level == \texttt{RATE\_LIMIT}$}
+        \STATE $payload[rate] \leftarrow 50$ \COMMENT{Stricter limit for TCP/SYN floods}
+    \ENDIF
+\ELSIF{$\text{``UDP''} \in f_{top}$}
+    \STATE $payload[protocol] \leftarrow \text{``UDP''}$
+\ENDIF
+\STATE Assemble rule $R$ with $ip_{src}$, $level$, and $payload$
+\RETURN $R$
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
